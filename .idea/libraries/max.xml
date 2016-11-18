@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="max">
+    <CLASSES>
+      <root url="jar:///Applications/Max.app/Contents/Resources/C74/packages/max-mxj/java-classes/lib/max.jar!/" />
+      <root url="jar:///Applications/Max.app/Contents/Resources/C74/packages/max-mxj/java-classes/lib/jitter.jar!/" />
+      <root url="jar:///Applications/Max.app/Contents/Resources/C74/packages/max-mxj/java-classes/lib/jode-1.1.2-pre-embedded.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

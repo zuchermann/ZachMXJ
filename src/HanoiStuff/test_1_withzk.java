@@ -9,6 +9,6 @@ import com.cycling74.max.*;
 public class test_1_withzk extends MaxObject {
 
     public void bang() {
-        post("hello world");
+        post("hi hanoi");
     }
 }

@@ -83,7 +83,7 @@ public class MotifPlayer extends MaxObject {
     }
 
     public void bang() {
-        outlet(0, "whoa!");
+        outlet(0, "zzzzzz!");
     }
 
     //setters

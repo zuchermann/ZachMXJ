@@ -1,5 +1,6 @@
 package MotifPlayer;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -15,6 +16,8 @@ import org.json.simple.parser.ParseException;
  */
 import com.cycling74.max.*;
 
+import static java.lang.System.getProperty;
+
 public class MotifPlayer extends MaxObject {
 
     private double tempo;
@@ -27,12 +30,15 @@ public class MotifPlayer extends MaxObject {
     private int beatEventIndex;
     private double lastDelay;
 
-    public MotifPlayer() {
+    public MotifPlayer() throws IOException {
         this(120);
     }
 
-    public MotifPlayer(double tempo) {
-        this.dir = this.getParentPatcher().getPath();
+    public MotifPlayer(double tempo) throws IOException {
+        //this.dir = this.getParentPatcher().getPath();
+        this.dir = this.getCodeSourcePath();
+        int index = dir.lastIndexOf('/');
+        dir = dir.substring(0,index);
         this.tempo = tempo;
         this.shouldOutput = true;
         this.beatEventIndex = 0;
@@ -41,9 +47,9 @@ public class MotifPlayer extends MaxObject {
         //load the json file
         JSONObject motifsJSON = new JSONObject();
         try {
-            post("loading motifs from " + dir + "/motifs.json \n");
+            post("now loading motifs from " + dir + "/motifs.json \n");
             JSONParser parser = new JSONParser();
-            Object obj = parser.parse(new FileReader(dir+"/motifs.json"));
+            Object obj = parser.parse(new FileReader(dir + "/motifs.json"));
             motifsJSON = (JSONObject) obj;
         } catch (FileNotFoundException e) {
             bail(e.getMessage());
@@ -126,7 +132,7 @@ public class MotifPlayer extends MaxObject {
             //tsk.interval = firstDelay; // set the initial task interval
             //tsk.repeat(); // start the playing
             for(Object beatEvent : beatEventList) {
-                JSONArray eventData = (JSONArray) ((JSONObject)beatEvent).get("constrolList");
+                JSONArray eventData = (JSONArray) ((JSONObject)beatEvent).get("controlList");
                 double eventOffset = ((Double) ((JSONObject) beatEvent).get("offset"));
                 double nextEvent = offsetToMs(eventOffset - lastOffset);
                 outlet(0, flatten("insert", nextEvent, "otto", eventData));

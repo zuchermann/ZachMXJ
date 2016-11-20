@@ -17,12 +17,7 @@ import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiMessage;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
+import javax.sound.midi.*;
 
 public class MotifParser {
     public static final int NOTE_ON = 0x90;
@@ -75,12 +70,12 @@ public class MotifParser {
         }
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void parse() throws InvalidMidiDataException, IOException {
         JSONObject outputJSON = new JSONObject();
         JSONArray motifNames = new JSONArray();
         JSONObject motifs = new JSONObject();
 
-        File[] files = new File("files").listFiles();
+        File[] files = new File("src/MotifPlayer/motif_midi_files").listFiles();
         for (File file : files) {
             if (file.getName().endsWith(".mid")) {
                 String motifName = file.getName();
@@ -107,12 +102,12 @@ public class MotifParser {
                                 String offset = "0." + mySplit[1];
                                 if(motif.containsKey(beat)) {
                                     JSONObject newMessage = new JSONObject();
-                                    newMessage.put("constrolList", data);
+                                    newMessage.put("controlList", data);
                                     newMessage.put("offset", Double.parseDouble(offset));
                                     ((JSONArray) motif.get(beat)).add(newMessage);
                                 } else {
                                     JSONObject newMessage = new JSONObject();
-                                    newMessage.put("constrolList", data);
+                                    newMessage.put("controlList", data);
                                     newMessage.put("offset", Double.parseDouble(offset));
                                     JSONArray control = new JSONArray();
                                     control.add(newMessage);
@@ -134,7 +129,7 @@ public class MotifParser {
         outputJSON.put("motifs", motifs);
         outputJSON.put("motifNames", motifNames);
         try {
-            File outputFile = new File("output.json");
+            File outputFile = new File("src/MotifPlayer/motifs.json");
             outputFile.createNewFile();
             FileWriter jsonWriter = new FileWriter(outputFile);
             Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -144,5 +139,9 @@ public class MotifParser {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) throws Exception {
+        parse();
     }
 }

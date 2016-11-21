@@ -68,14 +68,13 @@ public class MotifPlayer extends MaxObject {
 
         createInfoOutlet(false);
 
-        declareInlets(new int[]{ DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL});
+        declareInlets(new int[]{ DataTypes.ALL, DataTypes.ALL, DataTypes.ALL});
         declareOutlets(new int[]{ DataTypes.ALL, DataTypes.ALL, DataTypes.ALL});
 
         setInletAssist(new String[] {
                 "number current beat",
                 "number - motif",
                 "number current tempo",
-                "0 or 1 play/don't play"
         });
         setOutletAssist(new String[] { "go directly to leftmost inlet of qlist",
                 "name of playing motif",

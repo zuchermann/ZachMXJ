@@ -1,14 +1,11 @@
 package MotifPlayer;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 
 /**
@@ -16,7 +13,7 @@ import org.json.simple.parser.ParseException;
  */
 import com.cycling74.max.*;
 
-import static java.lang.System.getProperty;
+import javax.sound.midi.InvalidMidiDataException;
 
 public class MotifPlayer extends MaxObject {
 
@@ -47,15 +44,21 @@ public class MotifPlayer extends MaxObject {
         //load the json file
         JSONObject motifsJSON = new JSONObject();
         try {
+            /*post("now parsing motifs...");
+            MotifParser.parse(dir);
             post("now loading motifs from " + dir + "/motifs.json \n");
             JSONParser parser = new JSONParser();
-            Object obj = parser.parse(new FileReader(dir + "/motifs.json"));
-            motifsJSON = (JSONObject) obj;
+            Object obj = parser.parse(new FileReader(dir + "/motifs.json"));*/
+            post("now parsing motifs...");
+            motifsJSON = MotifParser.parse(dir);
+            PrintWriter out = new PrintWriter(dir + "/motifs.json");
+            motifsJSON.writeJSONString(out);
+            //post((String) ((JSONArray) motifsJSON.get("motifNames")).get(0));
         } catch (FileNotFoundException e) {
             bail(e.getMessage());
         } catch (IOException e) {
             bail(e.getMessage());
-        } catch (ParseException e) {
+        }catch (InvalidMidiDataException e) {
             bail(e.getMessage());
         }
 
@@ -132,7 +135,7 @@ public class MotifPlayer extends MaxObject {
             //tsk.interval = firstDelay; // set the initial task interval
             //tsk.repeat(); // start the playing
             for(Object beatEvent : beatEventList) {
-                JSONArray eventData = (JSONArray) ((JSONObject)beatEvent).get("controlList");
+                JSONArray eventData = (JSONArray) ((JSONObject) beatEvent).get("controlList");
                 double eventOffset = ((Double) ((JSONObject) beatEvent).get("offset"));
                 double nextEvent = offsetToMs(eventOffset - lastOffset);
                 outlet(0, flatten("insert", nextEvent, "otto", eventData));
@@ -149,7 +152,7 @@ public class MotifPlayer extends MaxObject {
         result[1] = Atom.newAtom(nextEvent);
         result[2] = Atom.newAtom(otto);
         for(int i = 0; i < eventData.size(); i++){
-            result[i + 3] = Atom.newAtom((Long) eventData.get(i));
+            result[i + 3] = Atom.newAtom((Integer) eventData.get(i));
         }
         return result;
     }

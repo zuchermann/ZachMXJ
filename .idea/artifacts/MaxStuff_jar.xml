@@ -5,9 +5,6 @@
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/junit/junit/4.10/junit-4.10.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="/Applications/Max.app/Contents/Resources/C74/packages/max-mxj/java-classes/lib/jode-1.1.2-pre-embedded.jar" path-in-jar="/" />
-      <element id="library" level="project" name="com.googlecode.json-simple:json-simple:1.1.1" />
-      <element id="library" level="project" name="com.google.code.gson:gson:2.8.0" />
     </root>
   </artifact>
 </component>

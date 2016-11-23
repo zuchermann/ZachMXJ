@@ -49,10 +49,10 @@ public class MotifPlayer extends MaxObject {
             post("now loading motifs from " + dir + "/motifs.json \n");
             JSONParser parser = new JSONParser();
             Object obj = parser.parse(new FileReader(dir + "/motifs.json"));*/
-            post("now parsing motifs...");
+            post("parsing motifs...");
             motifsJSON = MotifParser.parse(dir);
-            PrintWriter out = new PrintWriter(dir + "/motifs.json");
-            motifsJSON.writeJSONString(out);
+            //PrintWriter out = new PrintWriter(dir + "/motifs.json");
+            //motifsJSON.writeJSONString(out);
             //post((String) ((JSONArray) motifsJSON.get("motifNames")).get(0));
         } catch (FileNotFoundException e) {
             bail(e.getMessage());

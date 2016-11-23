@@ -91,10 +91,10 @@ public class MotifParser {
                         MidiMessage message = event.getMessage();
                         if (message instanceof ShortMessage) {
                             ShortMessage sm = (ShortMessage) message;
-                            if (sm.getCommand() == NOTE_ON && sm.getData2() > 0) {
+                            if (sm.getCommand() == NOTE_ON && sm.getData2() > 0) { // first byte is what kind of message it is, getData2, gets the second byte.
                                 JSONArray data = new JSONArray();
-                                Integer[] newData = { 99, 99, 99, 99, sm.getData1(), 999,99 };//9s are placeHolders
-                                data.addAll(Arrays.asList(newData));
+                                Integer[] newData = { 99, 99, 99, 99, sm.getData1(), 999,99 };//9s are placeHolders // Arraylists cannot be instantiated like this
+                                data.addAll(Arrays.asList(newData)); // Array are not classses. Array list is fine. Arays.tolist is a collection
                                 long tick = event.getTick();
                                 double beatOffsetLocation = tick/ppq;
                                 String locationStr = Double.toString(beatOffsetLocation);

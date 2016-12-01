@@ -6,12 +6,12 @@ import com.cycling74.max.*;
  * Created by yn on 12/1/16.
  */
 public class RhythmList extends MaxObject{
-    int listLength;
-    int div;
-    double[] propList;
-    double[] rhythmList;
-    static final double BIG_BOY = 9999;
-    double prev;
+    private int listLength;
+    private int div;
+    private double[] propList;
+    private double[] rhythmList;
+    private static final double BIG_BOY = 9999;
+    private double prev;
 
     public  RhythmList() {
         this(4);

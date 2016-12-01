@@ -20,8 +20,8 @@ public class RhythmList extends MaxObject{
     public RhythmList(int listLength) {
         this.listLength = listLength;
         this.div = 4;
-        this.propList = new double[this.listLength * this.listLength];
-        this.rhythmList = new double[this.listLength];
+        this.propList = new double[this.div * this.div];
+        this.rhythmList = new double[listLength];
         this.prev = BIG_BOY;
 
         for(int i = 0; i < listLength; i++){
@@ -76,7 +76,7 @@ public class RhythmList extends MaxObject{
 
     public void bang() {
         post("reset!");
-        this.propList = new double[this.listLength * this.listLength];
+        this.propList = new double[this.div * this.div];
         this.rhythmList = new double[this.listLength];
         this.prev = BIG_BOY;
 

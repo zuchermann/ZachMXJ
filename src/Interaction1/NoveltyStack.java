@@ -22,10 +22,10 @@ public class NoveltyStack extends MaxObject{
         this.outList = new double[listLength];
     }
 
-    private static int getRandomInt(int max){
+    private static int getRandomInt(int min, int max){
         Random rand = new Random();
-        int n = rand.nextInt(50);
-        return n;
+        int n = rand.nextInt(max - min);
+        return n + min;
     }
 
     private void shift(double newVal) {
@@ -35,12 +35,20 @@ public class NoveltyStack extends MaxObject{
         outList[outList.length - 1] = newVal;
     }
 
+    private boolean contains(double[] list, double val) {
+        for(int i = 0; i < list.length; i ++){
+            if (list[i] == val) return true;
+        }
+        return false;
+    }
+
     public void inlet(float value) {
-        if(Arrays.asList(outList).contains(value)){
+        if(!contains(outList, ((double) value))){
             shift(value);
         }
-        int randIndex = getRandomInt(outList.length);
+        int randIndex = getRandomInt(0, outList.length);
         outlet(0, outList[randIndex]);
+        outlet(1, outList);
     }
 
     public void bang() {

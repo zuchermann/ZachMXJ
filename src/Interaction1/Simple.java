@@ -153,6 +153,15 @@ public class Simple extends MaxObject{
         }
     }
 
+    public void bang() {
+        post("reset!");
+        this.ngram = new NGram();
+        this.valueQueue = new Stack<Double>();
+        this.accuracyQueue = new Stack<Double>();
+        this.accuracyQueueQueue = new Stack<Double>();
+        this.lastPrediction = 0;
+    }
+
     public static void main(String[] args) {
     }
 }

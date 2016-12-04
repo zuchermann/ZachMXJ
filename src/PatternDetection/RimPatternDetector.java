@@ -18,23 +18,29 @@ public class RimPatternDetector extends MaxObject {
     private double threshold;
     private int quantization_step;
     private int next_note_slot;
+    private String dir;
 
-    public RimPatternDetector(int quantization_step) throws InvalidMidiDataException, IOException {
+    public RimPatternDetector(int quantization_step, double threshold) throws InvalidMidiDataException, IOException {
+        this.dir = this.getCodeSourcePath();
+        int index = dir.lastIndexOf('/');
+        dir = dir.substring(0,index);
+        //post(dir + "/rim_midi_files");
         this.rhythmVector = new double[quantization_step];
-        this.rhythmPatterns = RimPatternParser.parse(quantization_step); // Returns a double[][] pattern_matrix
+        this.rhythmPatterns = RimPatternParser.parse(quantization_step, dir); // Returns a double[][] pattern_matrix
         this.quantization_step = quantization_step;
         this.next_note_slot = -1;
-        this.threshold = 1.0;
+        this.threshold = threshold;
 
         resetRhythmVector();
 
 
         createInfoOutlet(false);
 
-        declareInlets(new int[]{ DataTypes.ALL, DataTypes.ALL, DataTypes.ALL});
+        declareInlets(new int[]{ DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL});
         declareOutlets(new int[]{ DataTypes.ALL });
 
         setInletAssist(new String[] {
+                "set ms per beat - from top left of patch",
                 "new measure - cpuclock",
                 "rim hits - cpuclock",
                 "make decison - bang",
@@ -45,7 +51,7 @@ public class RimPatternDetector extends MaxObject {
 
     }
 
-    public void inlet(double val) {
+    public void inlet(float val) {
 
         //inlet 0: number curent beat
         //inlet 1: number or symbolcurrent motif
@@ -53,13 +59,34 @@ public class RimPatternDetector extends MaxObject {
         //inlet 3: 0 or 1 play/don't play
         int intlet_no = getInlet();
         switch(intlet_no) {
+        case 0:
+            setMsPerBeatQuant(val);
+            break;
+        case 1:
+            newBarTime(val);
+            break;
+        case 2:
+            newEventTime(val);
+            break;
+        default:
+            post("INLET NOT SUPPORTED");
+    }
+}
+
+    public void bang(){
+        //inlet 0: number curent beat
+        //inlet 1: number or symbolcurrent motif
+        //inlet 2: number current tempo
+        //inlet 3: 0 or 1 play/don't play
+        int intlet_no = getInlet();
+        switch(intlet_no) {
             case 0:
-                newBarTime(val);
                 break;
             case 1:
-                newEventTime(val);
                 break;
             case 2:
+                break;
+            case 3:
                 makeDecision();
                 break;
             default:
@@ -68,6 +95,7 @@ public class RimPatternDetector extends MaxObject {
     }
 
     private void newBarTime(double bar_time){
+        //post("new bar");
         resetRhythmVector();
         if(next_note_slot != -1) {
             rhythmVector[0] = 1;
@@ -77,6 +105,7 @@ public class RimPatternDetector extends MaxObject {
     }
 
     private void newEventTime(double event_time){
+        //post("new event");
         double val;
         val = event_time % bar_time; // modulo time
         //System.out.println("val: " + val);
@@ -96,20 +125,24 @@ public class RimPatternDetector extends MaxObject {
         int index;
         double min_dist;
         double[] distances;
+        printVector();
+
         distances = new double[rhythmPatterns.length];
 
         distances = calc_dists(rhythmVector, rhythmPatterns);
         min_dist = getMinValue(distances);
-        System.out.println("min dist: " + min_dist);
+        //System.out.println("min dist: " + min_dist);
 
         if (min_dist < threshold){ //threshold = 1.0 by default
             index = findSmallestIndex(distances);
-            System.out.println("index of min val: " + index);
-            System.out.println("Pattern " + index + " detected");
-            System.out.println();
+            outlet(0, index);
+            //System.out.println("index of min val: " + index);
+            //System.out.println("Pattern " + index + " detected");
+            //System.out.println();
         }
         else {
-            System.out.println("No known pattern detected");
+            //System.out.println("No known pattern detected");
+            outlet(0, -1);
         }
     }
 
@@ -122,7 +155,7 @@ public class RimPatternDetector extends MaxObject {
         }
         //print method
         for (int i = 0; i < dists.length; i++){
-            System.out.println("dist " + i + " " + dists[i]);
+            //System.out.println("dist " + i + " " + dists[i]);
         }
         return dists;
     }
@@ -137,12 +170,12 @@ public class RimPatternDetector extends MaxObject {
 
     private void setMsPerBeatQuant(double ms_p_beat){
         this.ms_p_quant = (ms_p_beat * 4.0) / (double)(this.quantization_step);
-        System.out.println("quantization_step: " + this.quantization_step);
-        System.out.println("ms_p_quant: " + ms_p_quant);
+        //System.out.println("quantization_step: " + this.quantization_step);
+        //System.out.println("ms_p_quant: " + ms_p_quant);
     }
 
     private void printVector() {
-        System.out.println("vector: ");
+        //System.out.println("vector: ");
         for(int i = 0; i < this.rhythmVector.length; i++) {
             System.out.print(""+ this.rhythmVector[i] + " ");
         }
@@ -150,7 +183,7 @@ public class RimPatternDetector extends MaxObject {
     }
 
     private void printRhythmPatterns() {
-        System.out.println("Rhythmpatterns: ");
+        //System.out.println("Rhythmpatterns: ");
         for(int i = 0; i < this.rhythmPatterns.length; i++) {
             for(int j = 0; j < this.rhythmPatterns[i].length; j++){
                 System.out.print(""+ this.rhythmPatterns[i][j] + " ");

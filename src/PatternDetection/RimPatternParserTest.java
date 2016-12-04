@@ -1,15 +1,5 @@
 package PatternDetection;
-
-/**
- * Created by Hanoi on 12/4/16.
- */
-
-/**
- * Created by yn on 11/18/16.
- */
 import java.io.File;
-import java.io.IOException;
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
@@ -17,19 +7,21 @@ import com.sun.org.apache.xalan.internal.xsltc.util.IntegerArray;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import javax.sound.midi.*;
-
-
-public class RimPatternParser {
+/**
+ * Created by Hanoi on 12/4/16.
+ */
+public class RimPatternParserTest {
     public static final int NOTE_ON = 0x90;
 
-    public static double[][] parse(int quantization_step, String dir) throws InvalidMidiDataException, IOException {
+    public static double[][] parse(int quantization_step) throws InvalidMidiDataException, IOException {
 
         //File[] files = new File(workingDir + "/motif_midi_files").listFiles();
-        File[] files = new File(dir + "/rim_midi_patterns").listFiles();
+        File[] files = new File("src/PatternDetection/rim_midi_patterns").listFiles();
 
         double[][] pattern_matrix;
         pattern_matrix = new double[files.length][quantization_step];
@@ -83,7 +75,7 @@ public class RimPatternParser {
             file_counter++;
         }
 
-        //printMatrix(pattern_matrix); // At the end of method, print the final matrix
+        printMatrix(pattern_matrix); // At the end of method, print the final matrix
 
         return pattern_matrix;
     }
@@ -98,4 +90,9 @@ public class RimPatternParser {
         }
         System.out.println();
     }
+
+    public static void main (String[] args) throws InvalidMidiDataException, IOException{
+        RimPatternParserTest.parse(16);
+    }
 }
+

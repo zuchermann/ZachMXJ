@@ -20,6 +20,19 @@ public class NoveltyStack extends MaxObject{
     public NoveltyStack(int listLength) {
         this.listLength = listLength;
         this.outList = new double[listLength];
+
+        createInfoOutlet(false);
+
+        declareInlets(new int[]{ DataTypes.ALL });
+        declareOutlets(new int[]{ DataTypes.ALL, DataTypes.ALL });
+
+        setInletAssist(new String[] {
+                "float input to be stored if novel",
+        });
+        setOutletAssist(new String[] {
+                "output random element of novelty list",
+                "output entire novelty list"
+        });
     }
 
     private static int getRandomInt(int min, int max){

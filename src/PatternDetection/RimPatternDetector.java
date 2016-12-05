@@ -57,6 +57,7 @@ public class RimPatternDetector extends MaxObject {
         //inlet 1: number or symbolcurrent motif
         //inlet 2: number current tempo
         //inlet 3: 0 or 1 play/don't play
+
         int intlet_no = getInlet();
         switch(intlet_no) {
         case 0:

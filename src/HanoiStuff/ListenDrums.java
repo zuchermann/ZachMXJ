@@ -68,7 +68,7 @@ public class ListenDrums extends MaxObject {
     }
 
     public void makeDecision() { //in Max, makeDecision() is called every beat
-        post("Making a decision");
+        //post("Making a decision");
         int motif = decideMotif();
         outlet(0, motif);
     }
@@ -76,7 +76,7 @@ public class ListenDrums extends MaxObject {
     private int decideMotif() {
         // Calculate the proportions of K, S, HH, T, R
         double[] prop = calcProportions();
-        post("Proportions: " + Arrays.toString(prop) + '\n');
+        //post("Proportions: " + Arrays.toString(prop) + '\n');
 
         if (prop[4] > 0) { // Ride being hit
             return 2;

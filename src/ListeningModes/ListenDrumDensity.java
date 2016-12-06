@@ -57,7 +57,7 @@ public class ListenDrumDensity extends MaxObject {
 
     public void bang() {
 
-        outputDensities(); //for every bang message update the densities
+        //outputDensities(); //for every bang message update the densities
 
         int inlet_no;
         inlet_no = getInlet();

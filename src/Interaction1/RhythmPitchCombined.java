@@ -17,11 +17,10 @@ public class RhythmPitchCombined extends MaxObject{
     private int sameCount;
     private double lastPitch;
 
-    double lastPrediction;
+    double[] lastPrediction;
     private Stack<Double> rhythmValueQueue;
     private Stack<Double> pitchValueQueue;
-    private Stack<Double> rhythmAccuracyQueue;
-    private Stack<Double> pitchAccuracyQueue;
+    private Stack<double[]> accuracyQueue;
     private boolean solo;
     private int stopSolo;
     private double msPerBeat;
@@ -29,7 +28,8 @@ public class RhythmPitchCombined extends MaxObject{
     private static final int RHYTHM_NGRAM_SIZE = 8;
     private static final int PITCH_NGRAM_SIZE = 16;
     private static final double[] RHYTHM_LIST = {0.25, 0.5, 2.0/3.0, 1, 1.5, 2, 3, 4};
-    private static final double[] LENGTH_LIST = {4.0, 6.0, 5.0, 8.0};
+    private static final double[] LENGTH_LIST = {6.0, 6.0, 8.0, 8.0, 8.0, 16, 12};
+    private static final int MEMORY_SIZE = 128;
 
 
     public RhythmPitchCombined() {
@@ -40,9 +40,8 @@ public class RhythmPitchCombined extends MaxObject{
         this.pitchValueQueue = new Stack<Double>();
         this.msPerBeat = 428.571442;
 
-        this.rhythmAccuracyQueue = new Stack<Double>();
-        this.pitchAccuracyQueue = new Stack<Double>();
-        this.lastPrediction = 0;
+        this.accuracyQueue = new Stack<double[]>();
+        this.lastPrediction = new double[] {-1, -1};
         this.lastPitch = -1;
         this.solo = false;
         this.stopSolo = 0;
@@ -50,7 +49,7 @@ public class RhythmPitchCombined extends MaxObject{
         createInfoOutlet(false);
 
         declareInlets(new int[]{ DataTypes.LIST, DataTypes.INT });
-        declareOutlets(new int[]{ DataTypes.LIST, DataTypes.FLOAT, DataTypes.FLOAT });
+        declareOutlets(new int[]{ DataTypes.LIST, DataTypes.ALL, DataTypes.FLOAT, DataTypes.FLOAT });
 
         setInletAssist(new String[] {
                 "list (time (from timer), pitch, globalCounter, milliseconds per beat) ",
@@ -141,14 +140,17 @@ public class RhythmPitchCombined extends MaxObject{
         return sum / m.size();
     }
 
-    private void calculateAccuracy(double val) {
-        this.pitchAccuracyQueue.add(Math.abs(val - lastPrediction));
-        while(pitchAccuracyQueue.size() > PITCH_NGRAM_SIZE) {
-            pitchAccuracyQueue.remove(0);
+    private void calculateAccuracy(double[] accuracy) {
+
+        if(accuracyQueue.size() >= PITCH_NGRAM_SIZE) {
+            Statistics stats = new Statistics(accuracyQueue);
+            double[] stdDev = stats.getStdDev();
+            outlet(2, accuracy[0]/stdDev[0]);
+            outlet(3, accuracy[1]/stdDev[1]);
         }
-        if(pitchAccuracyQueue.size() == PITCH_NGRAM_SIZE) {
-            //
-            post("RhythmPitchCombined - calculateAccuracy IMPLEMENT ME!");
+        accuracyQueue.add(accuracy);
+        while(accuracyQueue.size() > MEMORY_SIZE) {
+            accuracyQueue.remove(0);
         }
     }
 
@@ -229,11 +231,20 @@ public class RhythmPitchCombined extends MaxObject{
         if(rhythmBeatVal < 0) {
             //too long of a pause
             pitch = prediction[1];
+            this.lastPrediction = prediction;
         } else {
             //appropriately long pause
+            if(lastPrediction[0] > 0 && lastPrediction[1] > 0){
+                double[] accuracy = new double[] {
+                        (lastPrediction[0] - rhythmPitch[0]),
+                        (lastPrediction[1] - rhythmPitch[1])};
+                //post("accuracy " + Arrays.toString(accuracy));
+                calculateAccuracy(accuracy);
+            }
             insert(rhythmPitch);
             delay = prediction[0] * msPerBeat;
             pitch = prediction[1];
+            this.lastPrediction = prediction;
         }
 
         if(!solo) {
@@ -269,9 +280,8 @@ public class RhythmPitchCombined extends MaxObject{
         this.solo = false;
         this.stopSolo = 0;
 
-        this.rhythmAccuracyQueue = new Stack<Double>();
-        this.pitchAccuracyQueue = new Stack<Double>();
-        this.lastPrediction = 0;
+        this.accuracyQueue = new Stack<double[]>();
+        this.lastPrediction = new double[] {-1, -1};
         this.lastPitch = -1;
     }
 }

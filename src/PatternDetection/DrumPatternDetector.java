@@ -75,11 +75,12 @@ public class DrumPatternDetector extends MaxObject {
 
         // Declerations for Max Object
         createInfoOutlet(false);
-        declareInlets(new int[]{ DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL});
+        declareInlets(new int[]{ DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL});
         declareOutlets(new int[]{ DataTypes.ALL });
 
         setInletAssist(new String[] {
                 "set ms per beat - from top left of patch",
+                "set ms of new measure ",
                 "new kick hit - cpuclock",
                 "new snare hit - cpuclock",
                 "new rim hit - cpuclock",
@@ -106,21 +107,24 @@ public class DrumPatternDetector extends MaxObject {
                 setMsPerBeatQuant(val);
                 break;
             case 1:
-                newKickTime(val);
+                newBarTime(val);
                 break;
             case 2:
-                newSnareTime(val);
+                newKickTime(val);
                 break;
             case 3:
-                newRimTime(val);
+                newSnareTime(val);
                 break;
             case 4:
-                newHHTime(val);
+                newRimTime(val);
                 break;
             case 5:
-                newTomTime(val);
+                newHHTime(val);
                 break;
             case 6:
+                newTomTime(val);
+                break;
+            case 7:
                 newRideTime(val);
                 break;
             default:

@@ -37,7 +37,17 @@ public class ListenDrumProportions extends MaxObject {
         });
     }
 
+    public void inlet(int counter) {
+        int motif = decideMotif();
+        outlet(0, motif);
+        post(Integer.toString(counter));
+        if (counter % 16 == 0) {
+            reset();
+        }
+    }
+
     public void bang() {
+
         int inlet_no;
         inlet_no = getInlet();
         switch (inlet_no) {
@@ -64,12 +74,7 @@ public class ListenDrumProportions extends MaxObject {
         }
     }
 
-    public void makeDecision() { //in Max, makeDecision() is called every beat
-        //post("Making a decision");
-        int motif = decideMotif();
-        outlet(0, motif);
-    }
-
+    /*
     private int decideMotif(){
         double[] prop = calcProportions();
         int max_index = findMaxIndex(prop);
@@ -95,33 +100,34 @@ public class ListenDrumProportions extends MaxObject {
         }
         return val;
     }
+    */
 
-    /*
+
     private int decideMotif() {
         // Calculate the proportions of K, S, HH, T, R
         double[] prop = calcProportions();
         //post("Proportions: " + Arrays.toString(prop) + '\n');
 
         if (prop[4] > 0) { // Ride being hit
-            return 10;
+            return 20;
         }
         else if (findMaxIndex(prop) == 3) { // lots of hihats
-            return 11;
+            return 21;
         }
 
-        else if (prop[3] > 0.8) {
-            return 12;
+        else if (prop[3] > 0.7) {
+            return 22;
         }
 
         else if (prop[1] > prop[2]) { //more snares than toms
-            return 13;
+            return 23;
         }
         else if (prop[1] < prop[2]) { //more toms than snares
-            return 14;
+            return 24;
         }
-        return 15;
+        return 25;
     }
-    */
+
 
     private double[] calcProportions() {
         //declares an array of doubles, local to calcProportions()

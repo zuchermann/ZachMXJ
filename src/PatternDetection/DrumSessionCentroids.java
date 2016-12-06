@@ -16,7 +16,7 @@ public class DrumSessionCentroids {
 
     public static double[][] parse(int quantization_step, String workingDir) throws InvalidMidiDataException, IOException {
 
-        File[] files = new File(workingDir + "/motif_midi_files").listFiles();
+        File[] files = new File(workingDir + "/drum_midi_pattern").listFiles();
         //File[] files = new File("src/PatternDetection/drum_midi_pattern").listFiles();
         //File[] files = new File("src/PatternDetection/rim_midi_patterns").listFiles();
 

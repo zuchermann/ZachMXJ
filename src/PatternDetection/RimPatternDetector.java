@@ -20,6 +20,19 @@ public class RimPatternDetector extends MaxObject {
     private int next_note_slot;
     private String dir;
 
+    //threshold = 1.5 by default
+
+    public RimPatternDetector() throws InvalidMidiDataException, IOException {
+        this(16, 1.5);
+        //quantization = 16 by default (1/16 notes)
+        //threshold = 15 by default for drum session detector
+    }
+
+    public RimPatternDetector(int quantization_step) throws InvalidMidiDataException, IOException {
+        this(quantization_step, 2.0);
+        //threshold = 1.5 by default for drum session detector
+    }
+
     public RimPatternDetector(int quantization_step, double threshold) throws InvalidMidiDataException, IOException {
         this.dir = this.getCodeSourcePath();
         int index = dir.lastIndexOf('/');
@@ -136,7 +149,7 @@ public class RimPatternDetector extends MaxObject {
         min_dist = getMinValue(distances);
         //System.out.println("min dist: " + min_dist);
 
-        if (min_dist < threshold){ //threshold = 1.0 by default
+        if (min_dist < threshold){ //threshold = 1.5 by default
             index = findSmallestIndex(distances);
             outlet(0, index);
             //System.out.println("index of min val: " + index);

@@ -32,10 +32,17 @@ public class DrumPatternDetector extends MaxObject {
     private ArrayList<String> fileNames = new ArrayList<String>();
     private String dir;
 
+    public DrumPatternDetector() throws InvalidMidiDataException, IOException {
+        this(32, 2.0);
+        //threshold = 2.0 by default for drum session detector
+    }
 
+    public DrumPatternDetector(int quantization_step) throws InvalidMidiDataException, IOException {
+        this(quantization_step, 2.0);
+        //threshold = 2.0 by default for drum session detector
+    }
 
     public DrumPatternDetector(int quantization_step, double threshold) throws InvalidMidiDataException, IOException {
-
 
         this.dir = this.getCodeSourcePath();
         int index = dir.lastIndexOf('/');
@@ -43,8 +50,10 @@ public class DrumPatternDetector extends MaxObject {
         //post(dir + "/rim_midi_files");
 
         // Making arraylist for file names
-        File[] files = new File("src/PatternDetection/drum_midi_pattern").listFiles();
-        System.out.println("There are " + files.length + " midi pattern files");
+        //File[] files = new File("src/PatternDetection/drum_midi_pattern").listFiles();
+        File[] files = new File(dir + "/drum_midi_pattern").listFiles();
+        //System.out.println("There are " + files.length + " midi pattern files");
+        post("There are " + files.length + " midi pattern files");
         for (int i = 0; i < files.length; i++) {
             File file = files[i];
             if (file.getName().endsWith(".mid")) {

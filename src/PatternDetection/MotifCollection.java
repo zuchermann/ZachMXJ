@@ -25,6 +25,19 @@ public class MotifCollection {
         }
     }
 
+    public String get_closest_density(double density){
+        String target_motif = null;
+        double closest_density = 2000.0; // big boy
+        for (int i = 0; i < motifs.length; i++){
+            double dens = motifs[i].getProperty("density");
+            if (Math.abs(dens - density) < closest_density) {
+                closest_density = Math.abs(dens - density);
+                target_motif = motifs[i].getName();
+            }
+        }
+        return target_motif;
+    }
+
     public static void main(String[] i_love_my_car_and_i_love_my_wife_and_i_love_my_kids_too) throws IOException {
         MotifCollection myMotifs = new MotifCollection();
         myMotifs.dumpCollection();

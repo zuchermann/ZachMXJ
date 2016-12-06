@@ -118,7 +118,9 @@ public class RimPatternDetector extends MaxObject {
             next_note_slot = 1;
         }
         else {
-            this.rhythmVector[(int)(val)] = 1.0;
+            if (!(val > quantization_step)) {
+                this.rhythmVector[(int) (val)] = 1.0;
+            }
         }
     }
 
@@ -126,7 +128,7 @@ public class RimPatternDetector extends MaxObject {
         int index;
         double min_dist;
         double[] distances;
-        printVector();
+        //printVector();
 
         distances = new double[rhythmPatterns.length];
 

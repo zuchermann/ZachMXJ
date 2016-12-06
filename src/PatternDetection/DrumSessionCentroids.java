@@ -14,10 +14,10 @@ public class DrumSessionCentroids {
     private static final int num_drum_components = 6;
     private static double NaN;
 
-    public static double[][] parse(int quantization_step) throws InvalidMidiDataException, IOException {
+    public static double[][] parse(int quantization_step, String workingDir) throws InvalidMidiDataException, IOException {
 
-        //File[] files = new File(workingDir + "/motif_midi_files").listFiles();
-        File[] files = new File("src/PatternDetection/drum_midi_pattern").listFiles();
+        File[] files = new File(workingDir + "/motif_midi_files").listFiles();
+        //File[] files = new File("src/PatternDetection/drum_midi_pattern").listFiles();
         //File[] files = new File("src/PatternDetection/rim_midi_patterns").listFiles();
 
         double[][] centroids;
@@ -51,21 +51,21 @@ public class DrumSessionCentroids {
 
 
             if (file.getName().endsWith(".mid")) {
-                System.out.println("+++++++++++++++++++++++++++++++++++++++++++");
-                System.out.println("file_counter: " + file_counter);
+                //ystem.out.println("+++++++++++++++++++++++++++++++++++++++++++");
+                //System.out.println("file_counter: " + file_counter);
                 String drum_patt_name = file.getName();
-                System.out.println("Pattern Name: " + drum_patt_name);
+                //System.out.println("Pattern Name: " + drum_patt_name);
                 Sequence sequence = MidiSystem.getSequence(file);
                 double ticks_per_beat = sequence.getResolution();
-                System.out.println("ticks_per_beat: " + ticks_per_beat);
+                //System.out.println("ticks_per_beat: " + ticks_per_beat);
                 double ticks_per_quant = ticks_per_beat * 4.0 / (double) quantization_step; // There are 4 beats in a bar, then divide by quantization_step
-                System.out.println("ticks_per_quant: " + ticks_per_quant);
+                //System.out.println("ticks_per_quant: " + ticks_per_quant);
                 double midi_file_length = (sequence.getTickLength());
-                System.out.println("midi file length (ticks): " + midi_file_length);
+                //System.out.println("midi file length (ticks): " + midi_file_length);
                 double raw_num_bars = midi_file_length / (ticks_per_beat * 4.0);
-                System.out.println("raw_num_bars " + raw_num_bars);
+                //System.out.println("raw_num_bars " + raw_num_bars);
                 num_bars = java.lang.Math.round(raw_num_bars);
-                System.out.println("num_bars " + num_bars);
+                //System.out.println("num_bars " + num_bars);
                 //double overflow = num_bars * quantization_step;
                 //System.out.println("overflow " + overflow);
 
@@ -97,13 +97,13 @@ public class DrumSessionCentroids {
                         }
                     }
                 }
-                printFormattedMatrix(counter_matrix);
-                System.out.println("num_bars: " + num_bars);
+                //printFormattedMatrix(counter_matrix);
+                //System.out.println("num_bars: " + num_bars);
                 double[][] centroid = calc_centroid(counter_matrix, num_bars);
-                printFormattedMatrix(centroid);
+                //printFormattedMatrix(centroid);
                 //System.out.println("flat centroid \n" + Arrays.toString(flat_centroid));
                 double[] centroid_vector = flatten_matrix(centroid);
-                printVector(centroid_vector);
+                //printVector(centroid_vector);
                 centroidList.add(centroid_vector);
                 //centroids[file_counter] = centroid_vector;
 
@@ -113,9 +113,9 @@ public class DrumSessionCentroids {
         }
 
         centroids = centroidList.toArray(new double[centroidList.size()][]);
-        System.out.println("centroid rows = " + centroids.length);
-        System.out.println("centroid columns = " + centroids[0].length);
-        printFormattedMatrix(centroids);
+        //System.out.println("centroid rows = " + centroids.length);
+        //System.out.println("centroid columns = " + centroids[0].length);
+        //printFormattedMatrix(centroids);
         return centroids;
     }
 
@@ -133,7 +133,7 @@ public class DrumSessionCentroids {
         double[][] new_array = new double[array.length][array[0].length];
         for (int i = 0; i < array.length; i++) {
             double row_sum = sumOfRow(array[i]);
-            System.out.println("row sum: " + row_sum);
+            //System.out.println("row sum: " + row_sum);
             for (int j = 0; j < array[0].length; j++) {
                 new_array[i][j] = array[i][j] / row_sum;
             }
@@ -201,7 +201,9 @@ public class DrumSessionCentroids {
         System.out.println();
     }
 
+    /*
     public static void main(String[] args) throws InvalidMidiDataException, IOException {
         DrumSessionCentroids.parse(16);
     }
+    */
 }

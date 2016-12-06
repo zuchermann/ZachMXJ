@@ -73,7 +73,7 @@ public class MotifPlayer extends MaxObject {
 
         setInletAssist(new String[] {
                 "number current beat",
-                "number - motif",
+                "number or string - motif",
                 "number current tempo",
         });
         setOutletAssist(new String[] { "go directly to leftmost inlet of qlist",
@@ -98,6 +98,12 @@ public class MotifPlayer extends MaxObject {
     private void setMotif(int val) {
         motif = (JSONObject) motifs.get(motifNames.get(val));
         outlet(1, (String) motifNames.get(val));
+    }
+
+    //setters
+    private void setMotif(String val) {
+        motif = (JSONObject) motifs.get(val);
+        outlet(1, val);
     }
 
     private void setTempo(double val) {
@@ -176,13 +182,12 @@ public class MotifPlayer extends MaxObject {
 //beatScheduler.local = 1;*/
 
     public void inlet(int val) {
-
         //inlet 0: number curent beat
         //inlet 1: number or symbolcurrent motif
         //inlet 2: number current tempo
         //inlet 3: 0 or 1 play/don't play
-        int intlet_no = getInlet();
-        switch(intlet_no) {
+        int inlet_no = getInlet();
+        switch(inlet_no) {
             case 0:
                 playBeat(val);
                 break;
@@ -194,6 +199,26 @@ public class MotifPlayer extends MaxObject {
                 break;
             case 3:
                 toggleOutput(val);
+                break;
+            default:
+                post("INLET NOT SUPPORTED");
+        }
+    }
+
+    public void play(String val){
+        int inlet_no = getInlet();
+        switch(inlet_no) {
+            case 0:
+                post("INLET NOT SUPPORTED");
+                break;
+            case 1:
+                setMotif(val);
+                break;
+            case 2:
+                post("INLET NOT SUPPORTED");
+                break;
+            case 3:
+                post("INLET NOT SUPPORTED");
                 break;
             default:
                 post("INLET NOT SUPPORTED");

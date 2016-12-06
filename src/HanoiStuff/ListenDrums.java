@@ -79,23 +79,23 @@ public class ListenDrums extends MaxObject {
         //post("Proportions: " + Arrays.toString(prop) + '\n');
 
         if (prop[4] > 0) { // Ride being hit
-            return 2;
+            return 10;
         }
         else if (findMaxIndex(prop) == 3) { // lots of hihats
-            return 7;
+            return 11;
         }
 
         else if (prop[3] > 0.8) {
-            return 7;
+            return 12;
         }
 
         else if (prop[1] > prop[2]) { //more snares than toms
-            return 4;
+            return 13;
         }
         else if (prop[1] < prop[2]) { //more toms than snares
-            return 5;
+            return 14;
         }
-        return 2;
+        return 15;
     }
 
     private double[] calcProportions() {

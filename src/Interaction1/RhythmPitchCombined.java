@@ -22,10 +22,14 @@ public class RhythmPitchCombined extends MaxObject{
     private Stack<Double> pitchValueQueue;
     private Stack<Double> rhythmAccuracyQueue;
     private Stack<Double> pitchAccuracyQueue;
+    private boolean solo;
+    private int stopSolo;
+    private double msPerBeat;
 
     private static final int RHYTHM_NGRAM_SIZE = 8;
     private static final int PITCH_NGRAM_SIZE = 16;
     private static final double[] RHYTHM_LIST = {0.25, 0.5, 2.0/3.0, 1, 1.5, 2, 3, 4};
+    private static final double[] LENGTH_LIST = {4.0, 6.0, 5.0, 8.0};
 
 
     public RhythmPitchCombined() {
@@ -34,21 +38,26 @@ public class RhythmPitchCombined extends MaxObject{
         this.pitchNGram = new NGram();
         this.rhythmValueQueue = new Stack<Double>();
         this.pitchValueQueue = new Stack<Double>();
+        this.msPerBeat = 428.571442;
 
         this.rhythmAccuracyQueue = new Stack<Double>();
         this.pitchAccuracyQueue = new Stack<Double>();
         this.lastPrediction = 0;
         this.lastPitch = -1;
+        this.solo = false;
+        this.stopSolo = 0;
 
         createInfoOutlet(false);
 
-        declareInlets(new int[]{ DataTypes.LIST,});
+        declareInlets(new int[]{ DataTypes.LIST, DataTypes.INT });
         declareOutlets(new int[]{ DataTypes.LIST, DataTypes.FLOAT, DataTypes.FLOAT });
 
         setInletAssist(new String[] {
-                "list (time (from timer), pitch, globalCounter, milliseconds per beat) "
+                "list (time (from timer), pitch, globalCounter, milliseconds per beat) ",
+                "Shimon's counter"
         });
         setOutletAssist(new String[] { "Output probable next note (note, delay)",
+                "go to qlist",
                 "rhythm accuracy measure (standard deviation of last" + RHYTHM_NGRAM_SIZE + "predictions from all observation)",
                 "pitch accuracy measure (standard deviation of last" + PITCH_NGRAM_SIZE + "predictions from all observation)"
         });
@@ -160,15 +169,56 @@ public class RhythmPitchCombined extends MaxObject{
         return guess;
     }
 
+    private static int getRandomInt(int min, int max){
+        Random rand = new Random();
+        int n = rand.nextInt(max - min);
+        return n + min;
+    }
+
+    private void makeSolo() {
+        outlet(1, "clear");
+        double length = LENGTH_LIST[getRandomInt(0, LENGTH_LIST.length)];
+        double delay = this.msPerBeat / (length / 4.0);
+
+        double[] notes = this.pitchNGram.getMaxProbOfOrder((int) Math.round(length));
+
+        if(notes != null) {
+
+            Atom[] firstOutput = {Atom.newAtom("insert"), Atom.newAtom(0), Atom.newAtom("otto"), Atom.newAtom(notes[0])};
+            outlet(1, firstOutput);
+            for (int i = 1; i < notes.length; i++) {
+                Atom[] output = {Atom.newAtom("insert"), Atom.newAtom(delay), Atom.newAtom("otto"), Atom.newAtom(notes[i])};
+                outlet(1, output);
+            }
+            outletBang(1);
+        } else {
+            this.solo = false;
+        }
+    }
+
+    private void shouldSolo(int prob){
+        if (solo) {
+            this.solo = false;
+        }
+        if(!this.solo) {
+            int roll = getRandomInt(0, 4);
+            if(roll == 0) {
+                this.solo = true;
+                makeSolo();
+            }
+        }
+    }
+
+
     public void list(Atom[] args) {
         double rhythmTimeVal = args[0].getFloat();
         double PitchVal = args[1].getFloat();
         int globalCounter = args[2].getInt();
         double msPerBeat = args[3].getFloat();
+        this.msPerBeat = msPerBeat;
 
         //convert millisecond times to closest rhythmic value
         double rhythmBeatVal  = convertRhythm(rhythmTimeVal, msPerBeat);
-        post("rhythmVal " + rhythmBeatVal);
 
         double delay = 0;
         double pitch = PitchVal;
@@ -186,18 +236,38 @@ public class RhythmPitchCombined extends MaxObject{
             pitch = prediction[1];
         }
 
-        double[] output = {pitch, delay};
-        outlet(0, Atom.newAtom(output));
+        if(!solo) {
+            double[] output = {pitch, delay};
+            outlet(0, Atom.newAtom(output));
+        }
+    }
+
+    public void inlet(int beat) {
+        if(beat % 4 == 0) {
+            int prob = 4; //25% probability
+            if(beat % 8 == 0){
+                prob = 3;
+                if(beat % 16 == 0){
+                    prob = 2;
+                    if(beat % 32 == 0){
+                        prob = 2; //100% probability
+                    }
+                }
+            }
+            shouldSolo(prob);
+        }
     }
 
     public void bang() {
-        post("reset!");
+        //post("reset!");
 
         this.sameCount = 0;
         this.rhythmNGram = new NGram();
         this.pitchNGram = new NGram();
         this.rhythmValueQueue = new Stack<Double>();
         this.pitchValueQueue = new Stack<Double>();
+        this.solo = false;
+        this.stopSolo = 0;
 
         this.rhythmAccuracyQueue = new Stack<Double>();
         this.pitchAccuracyQueue = new Stack<Double>();

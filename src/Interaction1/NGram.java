@@ -17,7 +17,7 @@ public class NGram {
 
     private List<List<Double>> breakUp(List<Double> val) {
         List<List<Double>> broken = new ArrayList<List<Double>>();
-        for(int i = 2; i < val.size(); i ++) {
+        for(int i = 2; i <= val.size(); i ++) {
             List<Double> innerList = new ArrayList<Double>();
             for(int j = 0; j < i; j++) {
                 innerList.add(val.get(j));
@@ -60,6 +60,7 @@ public class NGram {
 
     public void insert(List<Double> val){
         List<List<Double>> brokenUp = breakUp(val);
+        //System.out.println("broken = " + brokenUp);
         for(List<Double> subVal : brokenUp){
             insertHelp(subVal);
         }
@@ -117,11 +118,58 @@ public class NGram {
 
     public List<HashMap<Double, Double>> getAllProbabilities(List<Double> val) {
         List<List<Double>> broken = breakBackwards(val);
+        //System.out.println("broken = " + broken);
         List<HashMap<Double, Double>> result = new ArrayList<HashMap<Double, Double>>();
         for (List<Double> sublist : broken) {
             HashMap<Double, Double> probabilityList = getProbabilities(sublist);
             result.add(probabilityList);
             //System.out.println(sublist);
+        }
+        return result;
+    }
+
+    private static int getRandomInt(int min, int max){
+        Random rand = new Random();
+        int n = rand.nextInt(max - min);
+        return n + min;
+    }
+
+    private double getMax(HashMap<Double, Integer> map){
+        int max = -1;
+        double result = -1;
+        for(Double key : map.keySet()) {
+            if(map.get(key) > max) {
+                max = map.get(key);
+                result = key;
+            }
+        }
+        return result;
+    }
+
+    public double[] getMaxProbOfOrder(int length){
+        HashMap<List<Double>, HashMap<Double,Integer>> ngram = this.probs.get(length);
+        int max = -1;
+        List<Double> maxKey = null;
+        double[] result = new double[length];
+        if(ngram != null) {
+            for (List<Double> key : ngram.keySet()) {
+                if (counts.get(key) > max) {
+                    max = counts.get(key);
+                    maxKey = key;
+                }
+            }
+        }
+        if(maxKey != null) {
+            for (int i = 0; i < length; i++) {
+                if (i == length - 1) {
+                    //System.out.println(ngram.get(maxKey));
+                    result[i] = getMax(ngram.get(maxKey));
+                } else {
+                    result[i] = maxKey.get(i);
+                }
+            }
+        } else {
+            result = null;
         }
         return result;
     }
@@ -166,14 +214,16 @@ public class NGram {
         myNgram.insert(newVal);
         System.out.println(myNgram.getAllProbabilities(newVal));
         newVal = new ArrayList<Double>();
+        newVal.add(1.2);
         newVal.add(2.2);
-        newVal.add(2.2);
-        newVal.add(2.2);
-        newVal.add(2.2);
+        newVal.add(4.2);
+        newVal.add(4.2);
         myNgram.insert(newVal);
         System.out.println(myNgram.getAllProbabilities(newVal));
         //System.out.println(myNgram.probs);
+        //System.out.println(myNgram.probs);
 
+        System.out.println(Arrays.toString(myNgram.getMaxProbOfOrder(4)));
     }
 
 }

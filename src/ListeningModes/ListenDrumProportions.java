@@ -46,7 +46,7 @@ public class ListenDrumProportions extends MaxObject {
     }
 
     public void bang() {
-
+        //Shimon is "hyperactive" and listens to changes for every hit from the drum parts
         int motif = decideMotif();
         outlet(0, motif);
 

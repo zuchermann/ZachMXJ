@@ -76,11 +76,11 @@ public class DrumPatternDetector extends MaxObject {
         // Declerations for Max Object
         createInfoOutlet(false);
         declareInlets(new int[]{ DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL});
-        declareOutlets(new int[]{ DataTypes.ALL });
+        declareOutlets(new int[]{ DataTypes.ALL, DataTypes.ALL });
 
         setInletAssist(new String[] {
                 "set ms per beat - from top left of patch",
-                "set ms of new measure ",
+                "set ms of new measure - cpuclock",
                 "new kick hit - cpuclock",
                 "new snare hit - cpuclock",
                 "new rim hit - cpuclock",
@@ -91,6 +91,7 @@ public class DrumPatternDetector extends MaxObject {
         });
         setOutletAssist(new String[] {
                 "detected pattern outlet",
+                "detected patter name"
         });
     }
 
@@ -146,7 +147,7 @@ public class DrumPatternDetector extends MaxObject {
         //inlet 3: 0 or 1 play/don't play
         int intlet_no = getInlet();
         switch (intlet_no) {
-            case 7:
+            case 8:
                 makeDecision();
                 break;
             default:
@@ -154,9 +155,45 @@ public class DrumPatternDetector extends MaxObject {
         }
     }
 
+    private void makeDecision(){
+        int index;
+        double min_dist;
+        double[] distances = new double[rhythmPatterns.length];
+        double[] rhythmVector = flatten_matrix(rhythmMatrix);
+
+        distances = calc_dists(rhythmVector, rhythmPatterns);
+        min_dist = getMinValue(distances);
+        //System.out.println("min dist: " + min_dist);
+
+        if (sumVector(rhythmVector) > 5) { // eliminates vector [0 0 0 0 ... 0 0 0] producing a natural distance to motif
+            if (min_dist < threshold) { //threshold = 2.0 by default for drum session detector -> needs to be changed as does not consider natural origin to point euc distance
+                index = findSmallestIndex(distances);
+                outlet(0, index);
+                outlet(1, fileNames.get(index));
+                System.out.println("index of min val: " + index);
+                System.out.println("Pattern detected: " + fileNames.get(index));
+                //System.out.println();
+            }
+        }
+        else {
+            System.out.println("No known pattern detected");
+            outlet(0, -1);
+            outlet(1, "N/A");
+        }
+    }
+
+    public int sumVector(double[] vector){
+        int sum = 0;
+        for (int i = 0; i < vector.length; i++){
+            sum += vector[i];
+        }
+        return sum;
+    }
+
         private void newBarTime(double bar_time){ // This function checks to see if there was a note in the previous bar that should be snapped to the current bar
         //post("new bar");
         resetRhythmMatrix();
+
         if(next_kick_slot != -1) {
             rhythmMatrix[0][0] = 1.0;
             next_kick_slot = -1;
@@ -187,14 +224,15 @@ public class DrumPatternDetector extends MaxObject {
 
     //There are 6 functions called newKickTime, newSnareTime etc, which correspond separate inlets that take in the cpuclock time associated with a hit
     private void newKickTime(double event_time){
-        //post("new event");
+        //post("new kick");
+        post("new kick time: " + event_time);
         double val;
         val = event_time % bar_time; // modulo time
         //System.out.println("val: " + val);
         val = val / ms_p_quant; // find the number of times the quant_step divides into the observed event time
         //System.out.println("val: " + val);
         val = java.lang.Math.round(val); // round the number to the nearest quantization step in the array
-        //System.out.println("val: " + val);
+        System.out.println("val: " + val);
         if (val == quantization_step) { // if the value is 16, this needs to be "snapped" to the beginning of the next bar
             next_kick_slot = 1;
         }
@@ -206,7 +244,7 @@ public class DrumPatternDetector extends MaxObject {
     }
 
     private void newSnareTime(double event_time){
-        //post("new event");
+        //post("new snare");
         double val;
         val = event_time % bar_time; // modulo time
         //System.out.println("val: " + val);
@@ -300,30 +338,9 @@ public class DrumPatternDetector extends MaxObject {
         }
     }
 
-    private void makeDecision(){
-        int index;
-        double min_dist;
-        double[] distances = new double[rhythmPatterns.length];
-        double[] rhythmVector = flatten_matrix(rhythmMatrix);
 
-        distances = calc_dists(rhythmVector, rhythmPatterns);
-        min_dist = getMinValue(distances);
-        //System.out.println("min dist: " + min_dist);
 
-        if (min_dist < threshold){ //threshold = 2.0 by default for drum session detector
-            index = findSmallestIndex(distances);
-            outlet(0, fileNames.get(index));
-            System.out.println("index of min val: " + index);
-            System.out.println("Pattern detected: " + fileNames.get(index));
-            //System.out.println();
-        }
-        else {
-            //System.out.println("No known pattern detected");
-            outlet(0, -1);
-        }
-    }
-
-    private static double[] calc_dists(double[] vector, double[][] patterns){
+    private double[] calc_dists(double[] vector, double[][] patterns){
         double[] dists;
         dists = new double[patterns.length];
 
@@ -332,7 +349,7 @@ public class DrumPatternDetector extends MaxObject {
         }
         //print method
         for (int i = 0; i < dists.length; i++){
-            //System.out.println("dist " + i + " " + dists[i]);
+            System.out.println("dist " + i + " " + dists[i] + " " + fileNames.get(i));
         }
         return dists;
     }
@@ -348,7 +365,7 @@ public class DrumPatternDetector extends MaxObject {
     private void setMsPerBeatQuant(double ms_p_beat){
         this.ms_p_quant = (ms_p_beat * 4.0) / (double)(this.quantization_step);
         //System.out.println("quantization_step: " + this.quantization_step);
-        //System.out.println("ms_p_quant: " + ms_p_quant);
+        System.out.println("ms_p_quant: " + ms_p_quant);
     }
 
     private void resetRhythmMatrix() {
@@ -395,15 +412,19 @@ public class DrumPatternDetector extends MaxObject {
         printFormattedMatrix(this.rhythmPatterns);
     }
 
-    private void printRhythmMatrix() {
+    public void printRhythmMatrix() {
+        //printFormattedMatrix(this.rhythmMatrix);
+
         //System.out.println("RhythmMatrix (KICK on top, RIDE on the bottom: ");
         for(int i = 0; i < this.rhythmMatrix.length; i++) {
             for(int j = 0; j < this.rhythmMatrix[i].length; j++){
                 System.out.print(""+ this.rhythmMatrix[i][j] + " ");
+                //post(""+ this.rhythmMatrix[i][j] + " ");
             }
             System.out.println();
         }
         System.out.println();
+
     }
 
     private static double[] flatten_matrix(double[][] matrix) {
@@ -420,7 +441,7 @@ public class DrumPatternDetector extends MaxObject {
         System.out.println("Formatted Matrix: ");
         for (int row = 0; row < arr.length; row++) {
             for (int col = 0; col < arr[0].length; col++) {
-                System.out.printf("%9.4f", arr[row][col]);
+                System.out.printf("%9.2f", arr[row][col]);
             }
             System.out.printf("\n");
         }

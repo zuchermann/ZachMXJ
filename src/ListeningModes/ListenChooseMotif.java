@@ -81,7 +81,7 @@ public class ListenChooseMotif extends MaxObject{
     }
 
     public void matchPatternDensity() {
-        outlet(0, myMotifs.get_closest_pattern_and_density(this.drum_pattern, this.density));
+        outlet(0, myMotifs.get_closest_pattern_and_density(this.drum_pattern, this.density) +".mid");
     }
 
     /*

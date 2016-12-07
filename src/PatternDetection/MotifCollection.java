@@ -73,6 +73,14 @@ public class MotifCollection {
                 selected_motifs = selectMotifType("chor");
                 target_motif = get_closest_density_of_selected_motifs(selected_motifs,density);
                 break;
+            case 4:
+                selected_motifs = selectMotifType("solo");
+                target_motif = get_closest_density_of_selected_motifs(selected_motifs,density);
+                break;
+            case 5:
+                selected_motifs = selectMotifType("ost");
+                target_motif = get_closest_density_of_selected_motifs(selected_motifs,density);
+                break;
             default:
                 target_motif = "bass_1";
         }

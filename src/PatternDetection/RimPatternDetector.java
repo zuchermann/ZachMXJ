@@ -29,7 +29,7 @@ public class RimPatternDetector extends MaxObject {
     }
 
     public RimPatternDetector(int quantization_step) throws InvalidMidiDataException, IOException {
-        this(quantization_step, 2.0);
+        this(quantization_step, 1.5);
         //threshold = 1.5 by default for drum session detector
     }
 

@@ -38,9 +38,8 @@ public class ListenDrumProportions extends MaxObject {
     }
 
     public void inlet(int counter) {
-        int motif = decideMotif();
-        outlet(0, motif);
-        post(Integer.toString(counter));
+        //int motif = decideMotif();
+        //outlet(0, motif);
         if (counter % 16 == 0) {
             reset();
         }
@@ -48,12 +47,14 @@ public class ListenDrumProportions extends MaxObject {
 
     public void bang() {
 
+        int motif = decideMotif();
+        outlet(0, motif);
+
         int inlet_no;
         inlet_no = getInlet();
         switch (inlet_no) {
             case 1: //KICK counter
                 kickCount = kickCount + 1;
-                //post("kickCount: " + kickCount + '\n');
                 break;
             case 2: //SNARE counter
                 snareCount = snareCount + 1;
@@ -81,22 +82,22 @@ public class ListenDrumProportions extends MaxObject {
         int val;
         switch (max_index) {
             case 0: //KICK was max
-                val = 20;
+                val = 30;
                 break;
             case 1: //SNARE was max
-                val = 21;
+                val = 31;
                 break;
             case 2: //TOMS was max
-                val = 22;
+                val = 32;
                 break;
             case 3: //HH was max
-                val = 23;
+                val = 33;
                 break;
             case 4: //RIDE was max
-                val = 24;
+                val = 34;
                 break;
             default:
-                val = 25;
+                val = 35;
         }
         return val;
     }
@@ -127,6 +128,7 @@ public class ListenDrumProportions extends MaxObject {
         }
         return 25;
     }
+
 
 
     private double[] calcProportions() {

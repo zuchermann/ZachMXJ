@@ -132,6 +132,13 @@ public class DrumPatternDetector extends MaxObject {
         }
     }
 
+    public void inlet(int counter) {
+        if (counter % 4 == 0) {
+            post(Integer.toString(counter));
+            makeDecision();
+        }
+    }
+
     public void bang() {
         //inlet 0: number curent beat
         //inlet 1: number or symbolcurrent motif

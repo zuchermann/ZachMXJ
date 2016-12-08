@@ -76,7 +76,7 @@ public class DrumPatternDetector extends MaxObject {
         // Declerations for Max Object
         createInfoOutlet(false);
         declareInlets(new int[]{ DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL});
-        declareOutlets(new int[]{ DataTypes.ALL, DataTypes.ALL });
+        declareOutlets(new int[]{ DataTypes.ALL, DataTypes.ALL, DataTypes.ALL });
 
         setInletAssist(new String[] {
                 "set ms per beat - from top left of patch",
@@ -91,7 +91,8 @@ public class DrumPatternDetector extends MaxObject {
         });
         setOutletAssist(new String[] {
                 "detected pattern outlet",
-                "detected patter name"
+                "detected patter name",
+                "min dist",
         });
     }
 
@@ -170,6 +171,7 @@ public class DrumPatternDetector extends MaxObject {
                 index = findSmallestIndex(distances);
                 outlet(0, index);
                 outlet(1, fileNames.get(index));
+                outlet(2, min_dist);
                 System.out.println("index of min val: " + index);
                 System.out.println("Pattern detected: " + fileNames.get(index));
                 //System.out.println();
@@ -225,14 +227,14 @@ public class DrumPatternDetector extends MaxObject {
     //There are 6 functions called newKickTime, newSnareTime etc, which correspond separate inlets that take in the cpuclock time associated with a hit
     private void newKickTime(double event_time){
         //post("new kick");
-        post("new kick time: " + event_time);
+        //post("new kick time: " + event_time);
         double val;
         val = event_time % bar_time; // modulo time
         //System.out.println("val: " + val);
         val = val / ms_p_quant; // find the number of times the quant_step divides into the observed event time
         //System.out.println("val: " + val);
         val = java.lang.Math.round(val); // round the number to the nearest quantization step in the array
-        System.out.println("val: " + val);
+        //System.out.println("val: " + val);
         if (val == quantization_step) { // if the value is 16, this needs to be "snapped" to the beginning of the next bar
             next_kick_slot = 1;
         }

@@ -87,6 +87,44 @@ public class MotifCollection {
         return target_motif;
     }
 
+    public String get_closest_isolated_pattern_and_density(int drum_pattern, double density){
+        Motif[] selected_motifs;
+        String target_motif = null;
+        switch (drum_pattern) {
+            case 0:
+                selected_motifs = selectMotifType("bass");
+                target_motif = get_closest_density_of_selected_motifs(selected_motifs,density);
+                break;
+            case 1:
+                selected_motifs = selectMotifType("chor");
+                target_motif = get_closest_density_of_selected_motifs(selected_motifs,density);
+                break;
+            case 2:
+                selected_motifs = selectMotifType("guit");
+                target_motif = get_closest_density_of_selected_motifs(selected_motifs,density);
+                break;
+            case 3:
+                selected_motifs = selectMotifType("mel");
+                target_motif = get_closest_density_of_selected_motifs(selected_motifs,density);
+                break;
+            case 4:
+                selected_motifs = selectMotifType("ost");
+                target_motif = get_closest_density_of_selected_motifs(selected_motifs,density);
+                break;
+            case 5:
+                selected_motifs = selectMotifType("poly");
+                target_motif = get_closest_density_of_selected_motifs(selected_motifs,density);
+                break;
+            case 6:
+                selected_motifs = selectMotifType("tex");
+                target_motif = get_closest_density_of_selected_motifs(selected_motifs,density);
+                break;
+            default:
+                target_motif = "bass_1";
+        }
+        return target_motif;
+    }
+
     public Motif[] selectMotifType(String motif_type) {
         Motif[] selected_motifs;
         ArrayList<Motif> motifsList = new ArrayList<Motif>();

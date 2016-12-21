@@ -84,6 +84,10 @@ public class ListenChooseMotif extends MaxObject{
         outlet(0, myMotifs.get_closest_pattern_and_density(this.drum_pattern, this.density) +".mid");
     }
 
+    public void matchIsolatedPatternDensity() {
+        outlet(0, myMotifs.get_closest_isolated_pattern_and_density(this.drum_pattern, this.density) +".mid");
+    }
+
     /*
     public static void main(String[] i_love_my_car_and_i_love_my_wife_and_i_love_my_kids_too) throws IOException {
         ListenChooseMotif myListener = new ListenChooseMotif();

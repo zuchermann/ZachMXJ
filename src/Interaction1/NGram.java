@@ -116,9 +116,55 @@ public class NGram {
         return result;
     }
 
+    private double getProbabilistic(HashMap<Double, Double> val) {
+        Random r = new Random();
+        double randomValue = r.nextDouble();
+        double minDist = 1;
+        double prediction = 0;
+        Set<Double> keys = val.keySet();
+        for(Double key : keys) {
+            double prob = val.get(key);
+            double dist = Math.abs(prob - randomValue);
+            if (dist < minDist) {
+                minDist = dist;
+                prediction = key;
+            }
+        }
+        return prediction;
+    }
+
+    public double predict(List<Double> val) {
+        List<List<Double>> broken = new ArrayList<List<Double>>();
+        for(int i = val.size() - 1; i >= 0; i--) {
+            List<Double> innerList = new ArrayList<Double>();
+            for(int j = i; j < val.size(); j++) {
+                innerList.add(val.get(j));
+            }
+            broken.add(innerList);
+        }
+        //System.out.println(broken);
+        //System.out.println("broken = " + broken);
+        //System.out.println(val);
+        List<HashMap<Double, Double>> result = new ArrayList<HashMap<Double, Double>>();
+        for (List<Double> sublist : broken) {
+            HashMap<Double, Double> probabilityList = getProbabilities(sublist);
+            result.add(probabilityList);
+            //System.out.println(sublist);
+        }
+        List<HashMap<Double, Double>> rhythmProbs = result;
+        for(int i = 0; i < rhythmProbs.size(); i ++) {
+            HashMap<Double, Double> prob = rhythmProbs.get(i);
+            if(prob.size() > 0){
+                return getProbabilistic(prob);
+            }
+        }
+        return val.get(val.size() - 1);
+    }
+
     public List<HashMap<Double, Double>> getAllProbabilities(List<Double> val) {
         List<List<Double>> broken = breakBackwards(val);
         //System.out.println("broken = " + broken);
+        //System.out.println(val);
         List<HashMap<Double, Double>> result = new ArrayList<HashMap<Double, Double>>();
         for (List<Double> sublist : broken) {
             HashMap<Double, Double> probabilityList = getProbabilities(sublist);
@@ -172,6 +218,10 @@ public class NGram {
             result = null;
         }
         return result;
+    }
+
+    public String toString(){
+        return probs.toString();
     }
 
     public static void main(String[] args){

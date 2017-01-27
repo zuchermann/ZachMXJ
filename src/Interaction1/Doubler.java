@@ -10,7 +10,11 @@ public class Doubler extends MaxObject{
     double MIN = 20;
 
     public Doubler(){
-        this.minVal = 500;
+        this(500);
+    }
+
+    public Doubler(double minVal){
+        this.minVal = minVal;
 
         createInfoOutlet(false);
 

@@ -58,7 +58,23 @@ public class Arm {
         return moveCommand != null && !moveCommand.isDone(time);
     }
 
-    public void scheduleCommand(double dist, double time, double deltaT){
+    public String home(double initialTime) {
+        double time = System.currentTimeMillis();
+        double deltaT = 1000;
+        double goalTime = time + deltaT;
+        double startPosition = homePosition - 200;
+        double goalPosition = homePosition;
+        double displacement = goalPosition - startPosition;
+        double maxV = Math.min(Shimon.MAXIMUM_ARM_SPEED, TWO * displacement/deltaT);
+        double accel = maxV == 0 ? 0 : (maxV * maxV)/((deltaT * maxV) - displacement);
+        double startV = ZERO;
+
+        moveCommand = new MoveCommand(time, goalTime, startPosition, goalPosition,
+                startV, maxV, accel, armIndex, 0, initialTime);
+        return moveCommand.getDirectControl();
+    }
+
+    public String scheduleCommand(double dist, double time, double deltaT, int vel, double initialTime){
         double goalTime = time + deltaT;
         double startPosition = moveCommand == null ? homePosition : moveCommand.getPosition(time);
         double goalPosition = dist;
@@ -67,6 +83,8 @@ public class Arm {
         double accel = maxV == 0 ? 0 : (maxV * maxV)/((deltaT * maxV) - displacement);
         double startV = ZERO;
 
-        moveCommand = new MoveCommand(time, goalTime, startPosition, goalPosition, startV, maxV, accel, armIndex);
+        moveCommand = new MoveCommand(time, goalTime, startPosition, goalPosition,
+                startV, maxV, accel, armIndex, vel, initialTime);
+        return moveCommand.getDirectControl();
     }
 }

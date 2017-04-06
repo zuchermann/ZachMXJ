@@ -10,9 +10,9 @@ public class ShimonController {
         Shimon shimon = new Shimon();
         System.out.println(shimon);
         double time = System.currentTimeMillis();
-        shimon.mididata(60, time);
+        shimon.mididata(60, 80, time, 500);
         TimeUnit.SECONDS.sleep(1);
         time = System.currentTimeMillis();
-        shimon.mididata(59, time);
+        shimon.mididata(59, 80, time, 500);
     }
 }

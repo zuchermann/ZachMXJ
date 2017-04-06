@@ -2,6 +2,9 @@ package Interaction1;
 
 import com.cycling74.max.*;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * Created by yn on 12/1/16.
  */
@@ -20,7 +23,6 @@ public class RhythmList extends MaxObject{
     public RhythmList(int listLength) {
         this.listLength = listLength;
         this.div = 4;
-        this.propList = new double[this.div * this.div];
         this.rhythmList = new double[listLength];
         this.prev = BIG_BOY;
 
@@ -28,11 +30,20 @@ public class RhythmList extends MaxObject{
             rhythmList[i] = 0.0;
         }
 
+        ArrayList<Double> temp = new ArrayList<Double>();
         for(int i = 0; i < div; i++) {
             for(int j = 0; j < div; j++){
-                propList[(i*div) + j] = ((double) (i+1)/ (double) (j+1));
+                double val =  ((double) (i+1)/ (double) (j+1));
+                if(!temp.contains(val))
+                    temp.add(val);
+                //propList[(i*div) + j] = val;
             }
         }
+        this.propList = new double[temp.size()];
+        for (int i = 0; i < this.propList.length; i++) {
+            this.propList[i] = temp.get(i);                // java 1.5+ style (outboxing)
+        }
+
 
         createInfoOutlet(false);
 
@@ -72,6 +83,10 @@ public class RhythmList extends MaxObject{
             }
         }
         prev = value;
+    }
+
+    public double[] getRhythmList() {
+        return rhythmList;
     }
 
     public void bang() {

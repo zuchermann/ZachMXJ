@@ -11,8 +11,8 @@ import java.util.*;
  * Created by yn on 12/3/16.
  */
 public class RhythmPitchCombined extends MaxObject{
-    private NGram rhythmNGram;
-    private NGram pitchNGram;
+    private NGram<Double> rhythmNGram;
+    private NGram<Double> pitchNGram;
 
     private int sameCount;
     private double lastPitch;
@@ -24,6 +24,7 @@ public class RhythmPitchCombined extends MaxObject{
     private boolean solo;
     private int stopSolo;
     private double msPerBeat;
+    private static Class doubleClass = (new Double(0)).getClass();
 
     private static final int RHYTHM_NGRAM_SIZE = 8;
     private static final int PITCH_NGRAM_SIZE = 16;
@@ -34,8 +35,8 @@ public class RhythmPitchCombined extends MaxObject{
 
     public RhythmPitchCombined() {
         this.sameCount = 0;
-        this.rhythmNGram = new NGram();
-        this.pitchNGram = new NGram();
+        this.rhythmNGram = new NGram<Double>(doubleClass);
+        this.pitchNGram = new NGram<Double>(doubleClass);
         this.rhythmValueQueue = new Stack<Double>();
         this.pitchValueQueue = new Stack<Double>();
         this.msPerBeat = 428.571442;
@@ -182,7 +183,7 @@ public class RhythmPitchCombined extends MaxObject{
         double length = LENGTH_LIST[getRandomInt(0, LENGTH_LIST.length)];
         double delay = this.msPerBeat / (length / 4.0);
 
-        double[] notes = this.pitchNGram.getMaxProbOfOrder((int) Math.round(length));
+        Double[] notes = this.pitchNGram.getMaxProbOfOrder((int) Math.round(length));
 
         if(notes != null) {
 
@@ -273,8 +274,8 @@ public class RhythmPitchCombined extends MaxObject{
         //post("reset!");
 
         this.sameCount = 0;
-        this.rhythmNGram = new NGram();
-        this.pitchNGram = new NGram();
+        this.rhythmNGram = new NGram<Double>(doubleClass);
+        this.pitchNGram = new NGram<Double>(doubleClass);
         this.rhythmValueQueue = new Stack<Double>();
         this.pitchValueQueue = new Stack<Double>();
         this.solo = false;

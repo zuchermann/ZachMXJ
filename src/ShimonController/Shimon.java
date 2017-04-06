@@ -7,6 +7,7 @@ public class Shimon {
     private double delay; // time in ms to delay
     private Arm[] arms;
     private double[] marimbaPositions;
+    private double initialTime;
     public static final int DEFAULT_NUMBER_OF_ARMS = 4;
     public static final double DEFAULT_DELAY = 465;
     public static final int HIGHEST_NOTE = 95;
@@ -28,6 +29,8 @@ public class Shimon {
         arms[1] = new Arm(10, 1, 100, 100);
         arms[2] = new Arm(1364, 2, 100, 100);
         arms[3] = new Arm(1385, 3, 100, 0);
+
+        this.initialTime = System.currentTimeMillis();
     }
 
     public Shimon() {
@@ -38,6 +41,10 @@ public class Shimon {
         if (midiNote > HIGHEST_NOTE || midiNote < LOWEST_NOTE) {
             return ERROR;
         } else return marimbaPositions[midiNote - LOWEST_NOTE];
+    }
+
+    public String home(int armIndex){
+        return arms[armIndex].home(initialTime);
     }
 
     public double distToMidi(double dist){
@@ -53,7 +60,7 @@ public class Shimon {
         return ERROR;
     }
 
-    public String mididata(int midiNote, double time){
+    public String mididata(int midiNote, int vel, double time, double deltaTime){
         Arm closest =  null;
         double dist = midiToDist(midiNote);
         for (Arm arm : arms) {
@@ -82,8 +89,8 @@ public class Shimon {
         }
         String serialMessage = null;
         if(closest != null){
-            closest.scheduleCommand(dist, time, delay);
-            serialMessage = closest.getSerialMessage();
+            delay = deltaTime;
+            serialMessage = closest.scheduleCommand(dist, time, delay, vel, initialTime);
         }
         return serialMessage;
     }

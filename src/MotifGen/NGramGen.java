@@ -19,10 +19,11 @@ public class NGramGen {
 
     public static final int MAX_LEN = 3600;
     public static final int OUTPUT_NUM = 1000;
+    private static Class doubleClass = (new Double(0)).getClass();
 
     public static void main(String[] args) throws IOException {
-        NGram pitchNGram = new NGram();
-        NGram rhythmNGram = new NGram();
+        NGram pitchNGram = new NGram<Double>(doubleClass);
+        NGram rhythmNGram = new NGram<Double>(doubleClass);
 
         HashMap<Integer, Double> startCounts = new HashMap<>();
         HashMap<Double, Double> startRhythmCounts = new HashMap<>();
@@ -140,10 +141,10 @@ public class NGramGen {
             while (tick < MAX_LEN) {
                 ArrayList<Double> lastPitchList = new ArrayList<>();
                 lastPitchList.add(lastNote);
-                double nextNote = pitchNGram.predict(lastPitchList);
+                double nextNote = (Double) pitchNGram.predict(lastPitchList);
                 ArrayList<Double> lastRhythmList = new ArrayList<>();
                 lastRhythmList.add(lastRhythm);
-                double nextRhythm = rhythmNGram.predict(lastRhythmList);
+                double nextRhythm = (Double) rhythmNGram.predict(lastRhythmList);
 
                 channel = 0;
                 pitch = (int) nextNote;

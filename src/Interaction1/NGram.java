@@ -1,25 +1,27 @@
 package Interaction1;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.List;
 
 /**
  * Created by yn on 11/20/16.
  */
-public class NGram {
-    HashMap<List<Double>, Integer> counts; //input, first is always count
-    HashMap<Integer, HashMap<List<Double>, HashMap<Double,Integer>>> probs;
+public class NGram<T> {
+    private HashMap<List<T>, Integer> counts; //input, first is always count
+    private HashMap<Integer, HashMap<List<T>, HashMap<T,Integer>>> probs;
+    private Class<T> theClass;
 
-    public NGram() {
-        this.counts = new HashMap<List<Double>, Integer>();
-        this.probs = new HashMap<Integer, HashMap<List<Double>, HashMap<Double,Integer>>>();
+    public NGram(Class<T> theClass) {
+        this.counts = new HashMap<List<T>, Integer>();
+        this.probs = new HashMap<Integer, HashMap<List<T>, HashMap<T,Integer>>>();
     }
 
-    private List<List<Double>> breakUp(List<Double> val) {
-        List<List<Double>> broken = new ArrayList<List<Double>>();
-        for(int i = 2; i <= val.size(); i ++) {
-            List<Double> innerList = new ArrayList<Double>();
-            for(int j = 0; j < i; j++) {
+    private List<List<T>> breakUp(List<T> val) {
+        List<List<T>> broken = new ArrayList<List<T>>();
+        for(int i = 1; i <= val.size(); i++) {
+            List<T> innerList = new ArrayList<T>();
+            for(int j = val.size() - i; j < val.size(); j++) {
                 innerList.add(val.get(j));
             }
             broken.add(innerList);
@@ -27,9 +29,9 @@ public class NGram {
         return broken;
     }
 
-    private void insertHelp(List<Double> val) {
+    private void insertHelp(List<T> val) {
         //insert into counts
-        List<Double> sublist = val.subList(0, val.size() - 1);
+        List<T> sublist = val.subList(0, val.size() - 1);
         if (counts.containsKey(sublist)) {
             int current = counts.get(sublist);
             counts.put(sublist, current + 1);
@@ -38,18 +40,18 @@ public class NGram {
         }
 
         //insert into ngram
-        HashMap<List<Double>, HashMap<Double, Integer>> nGram = probs.get(val.size());
+        HashMap<List<T>, HashMap<T, Integer>> nGram = probs.get(val.size());
         if(nGram == null) {
-            probs.put(val.size(), new HashMap<List<Double>, HashMap<Double, Integer>>());
+            probs.put(val.size(), new HashMap<List<T>, HashMap<T, Integer>>());
             nGram = probs.get(val.size());
         }
-        HashMap<Double, Integer> probabilities = nGram.get(sublist);
+        HashMap<T, Integer> probabilities = nGram.get(sublist);
         if(probabilities == null) {
-            HashMap<Double, Integer> newPrediction = new HashMap<Double, Integer>();
+            HashMap<T, Integer> newPrediction = new HashMap<T, Integer>();
             newPrediction.put(val.get(val.size()-1), 1);
             nGram.put(sublist, newPrediction);
         } else {
-            Double predicted = val.get(val.size()-1);
+            T predicted = val.get(val.size()-1);
             if (probabilities.containsKey(predicted)){
                 probabilities.put(predicted, probabilities.get(predicted) + 1);
             } else {
@@ -58,18 +60,18 @@ public class NGram {
         }
     }
 
-    public void insert(List<Double> val){
-        List<List<Double>> brokenUp = breakUp(val);
+    public void insert(List<T> val){
+        List<List<T>> brokenUp = breakUp(val);
         //System.out.println("broken = " + brokenUp);
-        for(List<Double> subVal : brokenUp){
+        for(List<T> subVal : brokenUp){
             insertHelp(subVal);
         }
     }
 
-    private List<List<Double>> breakBackwards (List<Double> val){
-        List<List<Double>> broken = new ArrayList<List<Double>>();
-        for(int i = val.size() - 1; i > 0; i--) {
-            List<Double> innerList = new ArrayList<Double>();
+    private List<List<T>> breakBackwards (List<T> val){
+        List<List<T>> broken = new ArrayList<List<T>>();
+        for(int i = val.size() - 1; i >= 0; i--) {
+            List<T> innerList = new ArrayList<T>();
             for(int j = i; j < val.size(); j++) {
                 innerList.add(val.get(j));
             }
@@ -79,7 +81,7 @@ public class NGram {
         return broken;
     }
 
-    public Integer getNumberOfOccurences(List<Double> val) {
+    public Integer getNumberOfOccurences(List<T> val) {
         Integer count = counts.get(val);
         if(count == null) {
             count = 0;
@@ -87,12 +89,12 @@ public class NGram {
         return  count;
     }
 
-    public HashMap<Double, Integer> getPredictionCounts(List<Double> val) {
-        HashMap<Double, Integer> result = new HashMap<Double, Integer>();
-        HashMap<List<Double>, HashMap<Double, Integer>> nGram =  probs.get(val.size() + 1);
+    public HashMap<T, Integer> getPredictionCounts(List<T> val) {
+        HashMap<T, Integer> result = new HashMap<T, Integer>();
+        HashMap<List<T>, HashMap<T, Integer>> nGram =  probs.get(val.size() + 1);
         //System.out.println(nGram);
         if(nGram != null) {
-            HashMap<Double, Integer> innerMap = nGram.get(val);
+            HashMap<T, Integer> innerMap = nGram.get(val);
             //System.out.println(innerMap);
             //System.out.println(val);
             //System.out.println(nGram);
@@ -104,27 +106,27 @@ public class NGram {
     }
 
     //predicted value and its probability 0-1
-    public HashMap<Double, Double> getProbabilities(List<Double> val){
-        HashMap<Double, Double> result = new HashMap<Double, Double>();
+    public HashMap<T, Double> getProbabilities(List<T> val){
+        HashMap<T, Double> result = new HashMap<T, Double>();
         Integer num = getNumberOfOccurences(val);
-        HashMap<Double, Integer> predictionCounts = getPredictionCounts(val);
-        Set<Double> keys = predictionCounts.keySet();
-        for (Double key : keys){
+        HashMap<T, Integer> predictionCounts = getPredictionCounts(val);
+        Set<T> keys = predictionCounts.keySet();
+        for (T key : keys){
             Double probability =  predictionCounts.get(key) / (double) num;
             result.put(key, probability);
         }
         return result;
     }
 
-    private double getProbabilistic(HashMap<Double, Double> val) {
+    private T getProbabilistic(HashMap<T, Double> val) {
         Random r = new Random();
         double randomValue = r.nextDouble();
         double minDist = 1;
-        double prediction = 0;
-        Set<Double> keys = val.keySet();
-        for(Double key : keys) {
-            double prob = val.get(key);
-            double dist = Math.abs(prob - randomValue);
+        T prediction = null;
+        Set<T> keys = val.keySet();
+        for(T key : keys) {
+            Double prob = val.get(key);
+            Double dist = Math.abs(prob - randomValue);
             if (dist < minDist) {
                 minDist = dist;
                 prediction = key;
@@ -133,10 +135,10 @@ public class NGram {
         return prediction;
     }
 
-    public double predict(List<Double> val) {
-        List<List<Double>> broken = new ArrayList<List<Double>>();
+    public T predict(List<T> val) {
+        List<List<T>> broken = new ArrayList<List<T>>();
         for(int i = val.size() - 1; i >= 0; i--) {
-            List<Double> innerList = new ArrayList<Double>();
+            List<T> innerList = new ArrayList<T>();
             for(int j = i; j < val.size(); j++) {
                 innerList.add(val.get(j));
             }
@@ -145,15 +147,15 @@ public class NGram {
         //System.out.println(broken);
         //System.out.println("broken = " + broken);
         //System.out.println(val);
-        List<HashMap<Double, Double>> result = new ArrayList<HashMap<Double, Double>>();
-        for (List<Double> sublist : broken) {
-            HashMap<Double, Double> probabilityList = getProbabilities(sublist);
+        List<HashMap<T, Double>> result = new ArrayList<HashMap<T, Double>>();
+        for (List<T> sublist : broken) {
+            HashMap<T, Double> probabilityList = getProbabilities(sublist);
             result.add(probabilityList);
             //System.out.println(sublist);
         }
-        List<HashMap<Double, Double>> rhythmProbs = result;
+        List<HashMap<T, Double>> rhythmProbs = result;
         for(int i = 0; i < rhythmProbs.size(); i ++) {
-            HashMap<Double, Double> prob = rhythmProbs.get(i);
+            HashMap<T, Double> prob = rhythmProbs.get(i);
             if(prob.size() > 0){
                 return getProbabilistic(prob);
             }
@@ -161,13 +163,13 @@ public class NGram {
         return val.get(val.size() - 1);
     }
 
-    public List<HashMap<Double, Double>> getAllProbabilities(List<Double> val) {
-        List<List<Double>> broken = breakBackwards(val);
+    public List<HashMap<T, Double>> getAllProbabilities(List<T> val) {
+        List<List<T>> broken = breakBackwards(val);
         //System.out.println("broken = " + broken);
         //System.out.println(val);
-        List<HashMap<Double, Double>> result = new ArrayList<HashMap<Double, Double>>();
-        for (List<Double> sublist : broken) {
-            HashMap<Double, Double> probabilityList = getProbabilities(sublist);
+        List<HashMap<T, Double>> result = new ArrayList<HashMap<T, Double>>();
+        for (List<T> sublist : broken) {
+            HashMap<T, Double> probabilityList = getProbabilities(sublist);
             result.add(probabilityList);
             //System.out.println(sublist);
         }
@@ -180,10 +182,10 @@ public class NGram {
         return n + min;
     }
 
-    private double getMax(HashMap<Double, Integer> map){
+    private T getMax(HashMap<T, Integer> map){
         int max = -1;
-        double result = -1;
-        for(Double key : map.keySet()) {
+        T result = null;
+        for(T key : map.keySet()) {
             if(map.get(key) > max) {
                 max = map.get(key);
                 result = key;
@@ -192,13 +194,13 @@ public class NGram {
         return result;
     }
 
-    public double[] getMaxProbOfOrder(int length){
-        HashMap<List<Double>, HashMap<Double,Integer>> ngram = this.probs.get(length);
+    public T[] getMaxProbOfOrder(int length){
+        HashMap<List<T>, HashMap<T,Integer>> ngram = this.probs.get(length);
         int max = -1;
-        List<Double> maxKey = null;
-        double[] result = new double[length];
+        List<T> maxKey = null;
+        T[] result = (T[]) Array.newInstance(theClass, length);
         if(ngram != null) {
-            for (List<Double> key : ngram.keySet()) {
+            for (List<T> key : ngram.keySet()) {
                 if (counts.get(key) > max) {
                     max = counts.get(key);
                     maxKey = key;
@@ -227,53 +229,59 @@ public class NGram {
     public static void main(String[] args){
 
         //test insert
-        NGram myNgram = new NGram();
+        NGram myNgram = new NGram<>((new Double(0)).getClass());
         List<Double> newVal = new ArrayList<Double>();
         newVal.add(1.2);
         newVal.add(2.2);
         newVal.add(3.2);
         newVal.add(4.2);
         myNgram.insert(newVal);
-        System.out.println(myNgram.getAllProbabilities(newVal));
+        //System.out.println(myNgram.getAllProbabilities(newVal));
+        System.out.println(myNgram);
         newVal = new ArrayList<Double>();
         newVal.add(2.2);
         newVal.add(3.2);
         newVal.add(4.2);
         newVal.add(5.2);
         myNgram.insert(newVal);
-        System.out.println(myNgram.getAllProbabilities(newVal));
+        //System.out.println(myNgram.getAllProbabilities(newVal));
+        System.out.println(myNgram);
         newVal = new ArrayList<Double>();
         newVal.add(3.2);
         newVal.add(4.2);
         newVal.add(5.2);
         newVal.add(6.2);
         myNgram.insert(newVal);
-        System.out.println(myNgram.getAllProbabilities(newVal));
+        //System.out.println(myNgram.getAllProbabilities(newVal));
+        System.out.println(myNgram);
         newVal = new ArrayList<Double>();
         newVal.add(4.2);
         newVal.add(5.2);
         newVal.add(6.2);
         newVal.add(7.2);
         myNgram.insert(newVal);
-        System.out.println(myNgram.getAllProbabilities(newVal));
+        //System.out.println(myNgram.getAllProbabilities(newVal));
+        System.out.println(myNgram);
         newVal = new ArrayList<Double>();
         newVal.add(1.2);
         newVal.add(2.2);
         newVal.add(3.2);
         newVal.add(4.2);
         myNgram.insert(newVal);
-        System.out.println(myNgram.getAllProbabilities(newVal));
+        //System.out.println(myNgram.getAllProbabilities(newVal));
+        System.out.println(myNgram);
         newVal = new ArrayList<Double>();
         newVal.add(1.2);
         newVal.add(2.2);
         newVal.add(4.2);
         newVal.add(4.2);
         myNgram.insert(newVal);
-        System.out.println(myNgram.getAllProbabilities(newVal));
+        //System.out.println(myNgram.getAllProbabilities(newVal));
+        System.out.println(myNgram);
         //System.out.println(myNgram.probs);
         //System.out.println(myNgram.probs);
 
-        System.out.println(Arrays.toString(myNgram.getMaxProbOfOrder(4)));
+        //System.out.println(Arrays.toString(myNgram.getMaxProbOfOrder(4)));
     }
 
 }

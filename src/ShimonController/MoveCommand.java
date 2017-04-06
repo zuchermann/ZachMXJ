@@ -15,8 +15,10 @@ public class MoveCommand {
     private double timeOfMax; // time at which max velocity is hit
     private double observedMaxV;
     private int armIndex;
+    private  int vel;
+    private double initialTime;
 
-    public static final double G_MULT = 1/9800.; //multiply acceleration of the form mm/s^2 with this to get g's
+    public static final double G_MULT = 1/.0098; //multiply acceleration of the form mm/ms^2 with this to get g's
     public static final double HALF = 0.5;
 
     public MoveCommand(double startTime,
@@ -26,8 +28,11 @@ public class MoveCommand {
                        double startV,
                        double maxV,
                        double accel,
-                       int armIndex){
+                       int armIndex,
+                       int vel,
+                       double initialTime){
         this.startTime = startTime;
+        this.vel = vel;
         this.goalTime = goalTime;
         this.startPosition = startPosition;
         this.goalPosition = goalPosition;
@@ -38,6 +43,7 @@ public class MoveCommand {
         this.timeOfMax = accel == 0 ? startTime : ((maxV - startV) / accel);
         this.observedMaxV = Math.signum(maxV) * Math.min(Math.abs(startV + (timeOfMax * accel)), Math.abs(maxV));
         this.armIndex = armIndex;
+        this.initialTime = initialTime;
         //System.out.println(getDirectControl());
     }
 
@@ -84,13 +90,15 @@ public class MoveCommand {
         return this.goalPosition;
     }
 
-    //gets string representing arm (1 index), Xtarget(mm), A(g), vmax, Arrival-time
+    //gets string representing arm (1 index), messageTime, Xtarget(mm), A(g), vmax, Arrival-time
     public String getDirectControl(){
         return Integer.toString(armIndex + 1) + " " +
-                Double.toString(goalPosition) +  " " +
-                Double.toString(accel * G_MULT) +  " " +
-                Double.toString(maxV) +  " " +
-                Double.toString(goalTime);
+                Long.toString(0) +  " " +
+                Long.toString(Math.round(goalPosition)) +  " " +
+                Double.toString(Math.abs(accel * G_MULT)) +  " " +
+                Long.toString(Math.round(Math.abs(maxV * 1000))) +  " " +
+                Integer.toString(vel) +  " " +
+                Long.toString(Math.round(goalTime - startTime));
     }
 
     public String getSerialMessage(){

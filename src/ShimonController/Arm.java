@@ -79,12 +79,16 @@ public class Arm {
         double startPosition = moveCommand == null ? homePosition : moveCommand.getPosition(time);
         double goalPosition = dist;
         double displacement = goalPosition - startPosition;
-        double maxV = Math.min(Shimon.MAXIMUM_ARM_SPEED, TWO * displacement/deltaT);
+        double maxV = TWO * displacement/deltaT;
         double accel = maxV == 0 ? 0 : (maxV * maxV)/((deltaT * maxV) - displacement);
         double startV = ZERO;
 
-        moveCommand = new MoveCommand(time, goalTime, startPosition, goalPosition,
-                startV, maxV, accel, armIndex, vel, initialTime);
-        return moveCommand.getDirectControl();
+        if ((Math.abs(maxV) * 1000.) < Shimon.MAXIMUM_ARM_SPEED &&
+                (Math.abs(accel) * MoveCommand.G_MULT) < Shimon.MAXIMUM_ACCEL) {
+            moveCommand = new MoveCommand(time, goalTime, startPosition, goalPosition,
+                    startV, maxV, accel, armIndex, vel, initialTime);
+            return moveCommand.getDirectControl();
+        }
+        else return null;
     }
 }

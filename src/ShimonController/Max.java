@@ -43,6 +43,14 @@ public class Max extends MaxObject{
         }
     }
 
+    public void controlArm(int armIndex, int midiNote, int noteVel, double deltaTime) {
+        double time = System.currentTimeMillis();
+        String serialMessage =  shimon.controlArm(armIndex, midiNote, noteVel, time, deltaTime);
+        if(serialMessage != null) {
+            outlet(NUM_OF_ARMS, Atom.parse(serialMessage));
+        }
+    }
+
     public void home() throws InterruptedException {
         outlet(NUM_OF_ARMS, Atom.parse(shimon.home(0)));
         TimeUnit.SECONDS.sleep(1);

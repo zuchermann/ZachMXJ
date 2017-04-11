@@ -4,6 +4,22 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.List;
 
+import java.util.*;
+class MapUtil {
+    public static<K> List<K> sortByValue( HashMap<K, Double> map ) {
+        List<HashMap.Entry<K, Double>> list = new LinkedList<>(map.entrySet());
+        Collections.sort( list, (o1, o2) ->
+                (o1.getValue()) > (o2.getValue()) ? 1 : ((o1.getValue() > o2.getValue()) ? -1 : 0));
+
+        List<K> result = new ArrayList<K>();
+        for (HashMap.Entry<K, Double> entry : list)
+        {
+            result.add( entry.getKey() );
+        }
+        return result;
+    }
+}
+
 /**
  * Created by yn on 11/20/16.
  */
@@ -70,7 +86,7 @@ public class NGram<T> {
 
     private List<List<T>> breakBackwards (List<T> val){
         List<List<T>> broken = new ArrayList<List<T>>();
-        for(int i = val.size() - 1; i >= 0; i--) {
+        for(int i = val.size(); i >= 0; i--) {
             List<T> innerList = new ArrayList<T>();
             for(int j = i; j < val.size(); j++) {
                 innerList.add(val.get(j));
@@ -222,6 +238,60 @@ public class NGram<T> {
         return result;
     }
 
+    public List<T> shuffleWeighted(HashMap<T, Double> probs){
+        List<T> result = new ArrayList<T>(probs.size());
+        double totalWeight = 1.0d;
+        while(probs.size() > 0){
+            double random = Math.random() * totalWeight;
+            for (T key : probs.keySet())
+            {
+                random -= probs.get(key);
+                if (random <= 0.0d)
+                {
+                    result.add(key);
+                    totalWeight -= probs.get(key);
+                    probs.remove(key);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    // Gets all possible prediction then probabilistically shuffles and returns.
+    // The item at position 0 is the most probable
+    public List<T> getAllShuffled(List<T> val){
+        return shuffle(getAllProbabilities(val));
+    }
+
+    // Gets all possible prediction then sorts based on probability and returns.
+    // The item at position 0 is the most probable
+    public List<T> getAllSorted(List<T> val){
+        return hashSort(getAllProbabilities(val));
+    }
+
+    public List<T> hashSort(List<HashMap<T, Double>> probs){
+        List<T> result = new ArrayList<T>();
+        for (HashMap<T, Double> prob : probs) {
+            List<T> sorted = MapUtil.sortByValue(prob);
+            result.addAll(sorted);
+        }
+        Collections.reverse(result);
+        return result;
+    }
+
+    public List<T> shuffle(List<HashMap<T, Double>> probs){
+        List<T> result = new ArrayList<T>();
+        for (HashMap<T, Double> prob : probs){
+            List<T> shuffled = shuffleWeighted(prob);
+            Collections.reverse(shuffled);
+            result.addAll(shuffled);
+            //System.out.println(shuffled);
+        }
+        Collections.reverse(result);
+        return result;
+    }
+
     public String toString(){
         return probs.toString();
     }
@@ -276,8 +346,13 @@ public class NGram<T> {
         newVal.add(4.2);
         newVal.add(4.2);
         myNgram.insert(newVal);
-        //System.out.println(myNgram.getAllProbabilities(newVal));
         System.out.println(myNgram);
+        System.out.println(myNgram.getAllProbabilities(newVal));
+        System.out.println(myNgram.getAllSorted(newVal));
+        System.out.println(myNgram.getAllShuffled(newVal));
+        System.out.println(myNgram);
+        //System.out.println();
+        //System.out.println(myNgram);
         //System.out.println(myNgram.probs);
         //System.out.println(myNgram.probs);
 

@@ -12,7 +12,8 @@ public class Shimon {
     public static final double DEFAULT_DELAY = 465;
     public static final int HIGHEST_NOTE = 95;
     public static final int LOWEST_NOTE = 48;
-    public static final double MAXIMUM_ARM_SPEED = 2500; //maximum arm speed is 2500 mm
+    public static final double MAXIMUM_ARM_SPEED = 2500; //maximum arm speed is 2500 mm/s
+    public static final double MAXIMUM_ACCEL = 3.; //maximum arm accel is 3 g's
     public static final double[] ACOUSTIC_MARIMBA_POSITIONS = {
             0, 10, 44, 73, 102, 157, 184, 212, 240, 267, 294, 324, 377, 406, 434, 463, 490, 546, 574, 599, 624, 651,
             673, 698, 749, 771, 798, 820, 846, 894, 919, 945, 969, 993, 1018, 1044, 1092, 1118, 1142, 1167, 1193, 1240,
@@ -25,10 +26,10 @@ public class Shimon {
         this.delay = delay;
         this.marimbaPositions = ACOUSTIC_MARIMBA_POSITIONS;
 
-        arms[0] = new Arm(0, 0, 0, 100);
-        arms[1] = new Arm(10, 1, 100, 100);
-        arms[2] = new Arm(1364, 2, 100, 100);
-        arms[3] = new Arm(1385, 3, 100, 0);
+        arms[0] = new Arm(0, 0, 0, 20);
+        arms[1] = new Arm(10, 1, 20, 75);
+        arms[2] = new Arm(1364, 2, 75, 20);
+        arms[3] = new Arm(1385, 3, 20, 0);
 
         this.initialTime = System.currentTimeMillis();
     }
@@ -60,32 +61,58 @@ public class Shimon {
         return ERROR;
     }
 
-    public String mididata(int midiNote, int vel, double time, double deltaTime){
-        Arm closest =  null;
+    public String controlArm(int armIndex, int midiNote, int vel, double time, double deltaTime){
+        String serialMessage = null;
+        Arm arm = arms[armIndex];
         double dist = midiToDist(midiNote);
-        for (Arm arm : arms) {
-            if(! arm.isMoving(time)){
-                if (    closest == null ||
-                        Math.abs(arm.getPosition(time) - dist) < Math.abs(closest.getPosition(time) - dist)){
-                    double goal = midiToDist(midiNote);
-                    double leftDanger = goal - arm.getLeftBound();
-                    double rightDanger = goal + arm.getRightBound();
-                    int armIndex = arm.getIndex();
-                    double[] dangerToLeft = armIndex > 0 ? arms[armIndex - 1].getDangerZone() : null;
-                    double[] dangerToRight = armIndex < arms.length - 1 ? arms[armIndex + 1].getDangerZone() : null;
-                    boolean danger = false;
-                    if (dangerToLeft != null){
-                        danger = dangerToLeft[1] >= leftDanger;
-                    } if (dangerToRight != null){
-                        if (!danger) {
-                            danger = dangerToRight[0] <= rightDanger;
+        if(!arm.isMoving(time)){
+            delay = deltaTime;
+            serialMessage = arm.scheduleCommand(dist, time, delay, vel, initialTime);
+        }
+        return serialMessage;
+    }
+
+    public String scheduleIfPossible (int midiNote, int vel, double time, double deltaTime){
+        return mididata(midiNote, vel, time, deltaTime, false);
+    }
+
+    public String mididata(int midiNote, int vel, double time, double deltaTime){
+       return mididata(midiNote, vel, time, deltaTime, true);
+    }
+
+    public String mididata(int midiNote, int vel, double time, double deltaTime, boolean transpose){
+        Arm closest =  null;
+        int currentOctave = 0;
+        double dist = midiToDist(midiNote);
+        while (closest == null && currentOctave < (transpose ? 4 : 1)) {
+            int transposed = (((midiNote + (12 * currentOctave)) - LOWEST_NOTE) % 48) + LOWEST_NOTE;
+            dist = midiToDist(transposed);
+            for (Arm arm : arms) {
+                if (!arm.isMoving(time)) {
+                    if (closest == null ||
+                            Math.abs(arm.getPosition(time) - dist) < Math.abs(closest.getPosition(time) - dist)) {
+                        double goal = midiToDist(transposed);
+                        double leftDanger = goal - arm.getLeftBound();
+                        double rightDanger = goal + arm.getRightBound();
+                        int armIndex = arm.getIndex();
+                        double[] dangerToLeft = armIndex > 0 ? arms[armIndex - 1].getDangerZone() : null;
+                        double[] dangerToRight = armIndex < arms.length - 1 ? arms[armIndex + 1].getDangerZone() : null;
+                        boolean danger = false;
+                        if (dangerToLeft != null) {
+                            danger = dangerToLeft[1] >= leftDanger;
                         }
-                    }
-                    if(!danger) {
-                        closest = arm;
+                        if (dangerToRight != null) {
+                            if (!danger) {
+                                danger = dangerToRight[0] <= rightDanger;
+                            }
+                        }
+                        if (!danger) {
+                            closest = arm;
+                        }
                     }
                 }
             }
+            currentOctave += 1;
         }
         String serialMessage = null;
         if(closest != null){
@@ -94,6 +121,8 @@ public class Shimon {
         }
         return serialMessage;
     }
+
+
 
     public double getArmPosition(int index, double time){
         return arms[index].getPosition(time);

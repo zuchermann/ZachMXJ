@@ -181,7 +181,7 @@ public class AllInOne extends MaxObject{
         while (result < Shimon.LOWEST_NOTE){
             result += 12;
         }
-        while (result > Shimon.HIGHEST_NOTE){
+        while (result > shimon.HIGHEST_NOTE){
             result -= 12;
         }
         return result;

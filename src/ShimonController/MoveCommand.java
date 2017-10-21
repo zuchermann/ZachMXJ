@@ -18,19 +18,19 @@ public class MoveCommand {
     private  int vel;
     private double initialTime;
 
-    public static final double G_MULT = 1/.0098; //multiply acceleration of the form mm/ms^2 with this to get g's
-    public static final double HALF = 0.5;
+    static final double G_MULT = 1/.0098; //multiply acceleration of the form mm/ms^2 with this to get g's
+    private static final double HALF = 0.5;
 
-    public MoveCommand(double startTime,
-                       double goalTime,
-                       double startPosition,
-                       double goalPosition,
-                       double startV,
-                       double maxV,
-                       double accel,
-                       int armIndex,
-                       int vel,
-                       double initialTime){
+    MoveCommand(double startTime,
+                double goalTime,
+                double startPosition,
+                double goalPosition,
+                double startV,
+                double maxV,
+                double accel,
+                int armIndex,
+                int vel,
+                double initialTime){
         this.startTime = startTime;
         this.vel = vel;
         this.goalTime = goalTime;
@@ -86,14 +86,14 @@ public class MoveCommand {
         return (currentTime > goalTime) ? goalPosition : totalDisplacement + startPosition;
     }
 
-    public double getGoalPosition(){
+    double getGoalPosition(){
         return this.goalPosition;
     }
 
     //gets string representing arm (1 index), messageTime, Xtarget(mm), A(g), vmax, Arrival-time
     public String getDirectControl(){
         return Integer.toString(armIndex + 1) + " " +
-                Long.toString(0) +  " " +
+                Double.toString(startTime - initialTime) +  " " +
                 Long.toString(Math.round(goalPosition)) +  " " +
                 Double.toString(Math.abs(accel * G_MULT)) +  " " +
                 Long.toString(Math.round(Math.abs(maxV * 1000))) +  " " +
@@ -105,7 +105,13 @@ public class MoveCommand {
         return null;
     }
 
-    public boolean isDone(double time){
+    double getStartTime() {return this.startTime;}
+
+    boolean isDone(double time){
         return time >= goalTime;
+    }
+
+    public double getGoalTime(){
+        return goalTime;
     }
 }

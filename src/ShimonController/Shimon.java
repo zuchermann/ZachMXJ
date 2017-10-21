@@ -11,7 +11,6 @@ public class Shimon {
     private double delay; // time in ms to delay
     private Arm[] arms;
     private double[] marimbaPositions;
-    private double initialTime;
     public static final int DEFAULT_NUMBER_OF_ARMS = 4;
     public static final double DEFAULT_DELAY = 465;
     public int HIGHEST_NOTE;
@@ -31,6 +30,7 @@ public class Shimon {
     //positions of MALLETKAT midi marimba bars: set algorithmically
     private static final double[] MALLETKAT_MARIMBA_POSITIONS = makeEvenSpacePositions(MALLETKAT_DIST);
     public static final double ERROR = -1;
+    public static final double BIG_BOY = 999999999;
 
     //method for calculating evenly-spaced marimba marimba bars
     private static double[] makeEvenSpacePositions(double size){
@@ -66,8 +66,6 @@ public class Shimon {
         arms[1] = new Arm(10, 1, 20, 75);
         arms[2] = new Arm(1364, 2, 75, 20);
         arms[3] = new Arm(1385, 3, 20, 0);
-
-        this.initialTime = System.currentTimeMillis();
     }
 
     public Shimon() {
@@ -84,7 +82,7 @@ public class Shimon {
     //this homing method sets arms to default locations in software (this is not hardware coming). Hardware homing
     //should be performed before software homing.
     public String home(int armIndex){
-        return arms[armIndex].home(initialTime);
+        return arms[armIndex].home();
     }
 
     //like midiToDist method above, but the other way around.
@@ -113,7 +111,7 @@ public class Shimon {
         boolean danger = isCollideDanger(arm, dist);
         if(!arm.isMoving(time) && !danger){
             delay = deltaTime;
-            serialMessage = arm.scheduleCommand(dist, time, delay, vel, initialTime);
+            serialMessage = arm.scheduleCommand(dist, time, delay, vel, time);
         }
         return serialMessage;
     }
@@ -172,7 +170,7 @@ public class Shimon {
         }
         if(commandCount == notes.length){
             for(int i = 0; i < notes.length; i++){
-                commands[i] = arms[i].scheduleASAP(midiToDist(notes[i]), time, vel, initialTime, gs, v);
+                commands[i] = arms[i].scheduleASAP(midiToDist(notes[i]), time, vel, time, gs, v);
             }
             return commands;
         } else return new String[0];
@@ -196,6 +194,7 @@ public class Shimon {
 
     public String controlArms(int[] armIndexes, int midiNote, int vel, double time, double deltaTime, boolean transpose){
         Arm closest =  null;
+        double lowestV = BIG_BOY;
         int currentOctave = 0;
         double dist = midiToDist(midiNote);
         int actualMarimbaLength = this.marimbaPositions.length;
@@ -211,6 +210,7 @@ public class Shimon {
             dist = midiToDist(transposed);
             for (int i : armIndexes) {
                 Arm arm = arms[i];
+                /*
                 if (!arm.isMoving(time) || arm.getPosition(time + deltaTime) == dist) {
                     if (closest == null ||
                             Math.abs(arm.getPosition(time) - dist) < Math.abs(closest.getPosition(time) - dist)) {
@@ -221,13 +221,38 @@ public class Shimon {
                         }
                     }
                 }
+                */
+                double doneAt = arm.getGoalTime(time);
+                double goalTime = time + deltaTime;
+                double availableDeltaTime = goalTime - doneAt;
+
+                if(arm.getPosition(time + deltaTime) == dist){
+                    closest = arm;
+                    lowestV = 0;
+                }
+                else if(availableDeltaTime > 0){
+                    double goal = midiToDist(transposed);
+                    boolean danger = isCollideDanger(arm, goal);
+                    if(!danger){
+                        double dDist = arm.getPosition(time) - dist;
+                        double speed = Math.abs(dDist/availableDeltaTime);
+                        if(closest == null || speed < lowestV){
+                            if(arm.canSchedule(dist, doneAt, availableDeltaTime, vel, time)) {
+                                closest = arm;
+                                lowestV = speed;
+                            }
+                        }
+                    }
+                }
             }
             currentOctave += 1;
         }
         String serialMessage = null;
         if(closest != null){
-            delay = deltaTime;
-            serialMessage = closest.scheduleCommand(dist, time, delay, vel, initialTime);
+            double doneAt = closest.getGoalTime(time);
+            double goalTime = time + deltaTime;
+            double availableDeltaTime = goalTime - doneAt;
+            serialMessage = closest.scheduleCommand(dist, doneAt, availableDeltaTime, vel, time);
         }
         return serialMessage;
     }

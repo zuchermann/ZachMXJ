@@ -6,6 +6,9 @@ import com.cycling74.max.MaxObject;
 import com.sun.javafx.binding.DoubleConstant;
 import com.sun.javafx.binding.IntegerConstant;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -76,7 +79,6 @@ public class Max extends MaxObject{
                 int arm_index = Integer.parseInt(serialMessage.split("\\s")[0]);
                 outlet(arm_index-1, midiNote);
             }
-
         }
     }
 

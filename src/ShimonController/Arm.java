@@ -185,6 +185,10 @@ public class Arm {
         } else return null;
     }
 
+    public double getHomePosition(){
+        return homePosition;
+    }
+
     void pushCommand(MoveCommand newCommand){
         ArrayList<MoveCommand> toDelete = new ArrayList<>();
         for(MoveCommand mc : moveCommand){

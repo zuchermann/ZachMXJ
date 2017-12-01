@@ -12,5 +12,8 @@
     <orderEntry type="library" name="com.googlecode.json-simple:json-simple:1.1.1" level="project" />
     <orderEntry type="library" name="edu.emory.mathcs:JTransforms:2.4" level="project" />
     <orderEntry type="library" name="LeapJava" level="project" />
+    <orderEntry type="library" name="com.illposed.osc:javaosc-core:0.4" level="project" />
+    <orderEntry type="library" name="org.ardulink:ardulink-core-serial-rxtx:2.0.0" level="project" />
+    <orderEntry type="library" name="comm-2.0" level="project" />
   </component>
 </module>

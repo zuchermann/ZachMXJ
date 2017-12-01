@@ -63,8 +63,8 @@ public class Shimon {
         this.HIGHEST_NOTE = LOWEST_NOTE + marimbaPositions.length - 1;
 
         arms[0] = new Arm(0, 0, 0, 20);
-        arms[1] = new Arm(10, 1, 20, 75);
-        arms[2] = new Arm(1364, 2, 75, 20);
+        arms[1] = new Arm(40, 1, 20, 75);
+        arms[2] = new Arm(1350, 2, 75, 20);
         arms[3] = new Arm(1385, 3, 20, 0);
     }
 
@@ -204,11 +204,11 @@ public class Shimon {
         while(midiNote < LOWEST_NOTE){
             midiNote += 12;
         }
-        while (closest == null && currentOctave < (transpose ? octaveCount : 1)) {
+        while (closest == null && currentOctave < (transpose ? octaveCount : 1)) {//go through all octave transpositions
             int mid = ((midiNote + (12 * currentOctave)) - LOWEST_NOTE);
             int transposed = mid % actualMarimbaLength + LOWEST_NOTE - (mid < actualMarimbaLength ? 0  : extranotes);
             dist = midiToDist(transposed);
-            for (int i : armIndexes) {
+            for (int i : armIndexes) {//go through each arm
                 Arm arm = arms[i];
                 /*
                 if (!arm.isMoving(time) || arm.getPosition(time + deltaTime) == dist) {
@@ -247,6 +247,7 @@ public class Shimon {
             }
             currentOctave += 1;
         }
+        System.out.print("" + (currentOctave <= 1 ? 0 : 1) + " ");
         String serialMessage = null;
         if(closest != null){
             double doneAt = closest.getGoalTime(time);
@@ -257,8 +258,17 @@ public class Shimon {
         return serialMessage;
     }
 
-
-
+    public double getRelativePosition(int arm_i, double position){
+        Arm arm = arms[arm_i];
+        double home_position = arm.getHomePosition();
+        double rel_position;
+        if(arm_i == 0 || arm_i == 1){
+            rel_position = position - home_position;
+        } else{
+            rel_position = home_position - position;
+        }
+        return rel_position;
+    }
 
 
     public double getArmPosition(int index, double time){

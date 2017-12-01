@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="com.illposed.osc:javaosc-core:0.4" type="repository">
+    <properties maven-id="com.illposed.osc:javaosc-core:0.4" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/javaosc-core-0.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

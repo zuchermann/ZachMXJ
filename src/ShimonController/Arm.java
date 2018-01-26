@@ -93,6 +93,7 @@ public class Arm {
         return true;
     }
 
+    //a way to quickly return to homing positions at some constant speed
     public String home() {
         double time = System.currentTimeMillis();
         double deltaT = 1000;

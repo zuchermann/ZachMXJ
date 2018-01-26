@@ -12,7 +12,7 @@ public class Shimon {
     private Arm[] arms;
     private double[] marimbaPositions;
     public static final int DEFAULT_NUMBER_OF_ARMS = 4;
-    public static final double DEFAULT_DELAY = 465;
+    public static final double DEFAULT_DELAY = 500;
     public int HIGHEST_NOTE;
     public static final int LOWEST_NOTE = 48;
     public static final double MAXIMUM_ARM_SPEED = 2500; //maximum arm speed is 2500 mm/s

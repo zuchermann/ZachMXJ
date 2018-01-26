@@ -98,7 +98,8 @@ public class ShimonOSC {
                         float accel = Float.parseFloat(split_serial[3]);
                         int vmax = Integer.parseInt(split_serial[4]);
                         double strikeTime = currentTime + deltaT;
-                        MotorCommand newCommand = new MotorCommand(axis, position, vmax, note, accel, strikeTime, moveTime, shimonModel, motors, strikers);
+                        int midinote = (int) Math.round(shimonModel.distToMidi(position));
+                        MotorCommand newCommand = new MotorCommand(axis, midinote, vmax, midinote, accel, strikeTime, moveTime, shimonModel, motors, strikers);
                         try {
                             motorCommands.put(newCommand);
                         } catch (InterruptedException e) {

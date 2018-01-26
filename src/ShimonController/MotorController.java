@@ -1,7 +1,6 @@
 package ShimonController;
 
 import innards.data.PSerial;
-import innards.data.SerialPortJavaComm;
 import innards.debug.Debug;
 
 import java.io.IOException;

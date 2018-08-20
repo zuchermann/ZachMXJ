@@ -24,7 +24,7 @@ public class NGramParser {
 
     public static void parse(String directoryPath, int nGramLength, Simple model, boolean isRhythm) throws IOException {
         files = new File(directoryPath).listFiles();
-        //System.out.println(files);
+        System.out.println(directoryPath);
         rhythmList = new RhythmList(1);
 
         for (File file : files) {

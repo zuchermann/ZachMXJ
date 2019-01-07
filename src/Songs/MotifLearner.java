@@ -91,7 +91,7 @@ public class MotifLearner {
             while(try_beat < next_beat){
                 double prev_beat = beats.get(i);
                 if(try_beat > prev_beat){
-                    double time_before = try_beat - prev_beat;7t
+                    double time_before = try_beat - prev_beat;
                     double time_after = next_beat - try_beat;
                     if(time_before < time_after || next_beat == beat_length){
                         beats.set(i, try_beat);

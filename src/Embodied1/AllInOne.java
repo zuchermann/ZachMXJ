@@ -61,7 +61,7 @@ public class AllInOne extends MaxObject{
         declareInlets(new int[]{ DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL,
                 DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL });
         declareOutlets(new int[]{ DataTypes.ALL, DataTypes.ALL,
-                DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL});
+                DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL, DataTypes.ALL});
 
         setInletAssist(new String[] {
                 "CONTROL: hit (pitch, vel, delay) after 'delay' ms",
@@ -80,8 +80,24 @@ public class AllInOne extends MaxObject{
                 "location of arm 3",
                 "location of arm 4",
                 "messages to arms",
-                "messages to head"
+                "messages to head",
+                "note, delay"
         });
+    }
+
+    public void reset_buffers(){
+        Class nGramClass = "".getClass();
+        this.rhythm = new NGram<String>(nGramClass);
+        this.pitch = new NGram<String>(nGramClass);
+        this.rhythmQueue = new Stack<String>();
+        this.pitchQueue = new Stack<String>();
+        this.isRhythmMostLikely = false;
+        this.isPitchMostLikely = true;
+        this.thisTime = System.currentTimeMillis();;
+        this.lastTime = thisTime;
+        this.accuracy = 1000;
+        this.rhythmList = new RhythmList(1);
+        System.out.println("buffers reset");
     }
 
     private void debug(String message){
@@ -148,6 +164,8 @@ public class AllInOne extends MaxObject{
                         if(delay > 0.d) delay -= Math.max(0.d, (System.currentTimeMillis() - thisTime));
                         serial = shimon.scheduleIfPossible(thisPitch, vel, thisTime, delay);
                         if(serial != null){
+                            Atom[] out = new Atom[] {Atom.newAtom(thisPitch), Atom.newAtom(delay)};
+                            outletHigh(NUM_OF_ARMS + 2, out);
                             serialMessages.add(serial);
                         }
                     }
@@ -192,7 +210,12 @@ public class AllInOne extends MaxObject{
             //(pitch, velocity, delay) note to be played by Shimon after 'delay' number of ms
             debug("playing note (pitch, velocity, delay) = " + Atom.toOneString(args));
             double time = System.currentTimeMillis();
-            shimon.mididata(args[0].toInt(), args[1].toInt(), time, args[2].toDouble());
+            String serialMessage = shimon.mididata(args[0].toInt(), args[1].toInt(), time, args[2].toDouble());
+            if(serialMessage != null) {
+                Atom[] out = new Atom[] {Atom.newAtom(args[0].toInt()), Atom.newAtom(args[2].toDouble())};
+                outletHigh(NUM_OF_ARMS + 2, out);
+                outletHigh(NUM_OF_ARMS, Atom.parse(serialMessage));
+            }
         } else if(inlet_num == 1){
             //(arm index[0-3], pitch, velocity, delay) note to be played by arm at 'arm index'
             // after" 'delay' number of ms
